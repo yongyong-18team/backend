@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: batong
+      POSTGRES_USER: batong
+      POSTGRES_PASSWORD: batong
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - batong-db:/var/lib/postgresql/data
+
+volumes:
+  batong-db:

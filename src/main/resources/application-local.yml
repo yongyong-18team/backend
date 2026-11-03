@@ -1,0 +1,11 @@
+# 로컬 개발: 먼저 docker compose up -d db 로 PostgreSQL을 띄운다
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/batong
+    username: batong
+    password: batong
+
+app:
+  ai-mode: mock
+  jwt:
+    secret: local-only-secret-change-me-32bytes-minimum!!

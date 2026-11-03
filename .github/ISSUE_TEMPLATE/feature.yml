@@ -1,0 +1,31 @@
+name: 기능
+description: API 하나 또는 화면 하나
+title: "[API ID] 설명"
+labels: ["P0"]
+body:
+  - type: input
+    id: spec
+    attributes:
+      label: 명세 위치
+      placeholder: "API 명세 v1.4 SHARE-03 / ERD share / TRD 7-3"
+    validations:
+      required: true
+  - type: textarea
+    id: todo
+    attributes:
+      label: 할 일
+      value: |
+        - [ ] 
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 기준
+      value: |
+        - [ ] 요청·응답·에러 코드가 명세와 같음
+        - [ ] 규칙이 있는 곳은 단위 테스트
+        - [ ] dev 서버에서 Swagger로 호출 확인
+  - type: input
+    id: depends
+    attributes:
+      label: 먼저 끝나야 하는 이슈
+      placeholder: "#3"

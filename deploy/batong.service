@@ -1,0 +1,17 @@
+# /etc/systemd/system/batong.service
+# User는 서버에 SSH로 접속하는 계정으로 바꾼다 (Ubuntu: ubuntu, Amazon Linux: ec2-user)
+[Unit]
+Description=Batong Backend
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/batong
+EnvironmentFile=/opt/batong/.env
+ExecStart=/usr/bin/java -Xms512m -Xmx1g -Duser.timezone=Asia/Seoul -jar /opt/batong/app.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,29 @@
+name: 버그
+description: 동작이 명세와 다르거나 에러가 날 때
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: 어디서
+      placeholder: "DIARY-02 / 2.2 화면 / dev 서버"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 방법
+      placeholder: "1. ... 2. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대한 것과 실제
+  - type: textarea
+    id: log
+    attributes:
+      label: 에러 메시지·로그
+      description: 토큰, 비밀번호, 일기 본문은 지우고 붙인다
+      render: text

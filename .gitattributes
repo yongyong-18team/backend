@@ -1,0 +1,5 @@
+# Windows·macOS가 섞여도 줄바꿈 차이로 diff가 생기지 않게 한다
+* text=auto eol=lf
+*.bat text eol=crlf
+gradlew text eol=lf
+*.jar binary
