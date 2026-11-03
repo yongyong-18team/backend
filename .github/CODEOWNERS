@@ -1,8 +1,8 @@
 # 아래 경로를 바꾸는 PR에는 백엔드 A 리뷰가 자동으로 요청된다(승인 강제는 아님).
-# @BACKEND_A 를 실제 GitHub 아이디로 바꾼다.
-/src/main/java/com/batong/global/  @BACKEND_A
-/build.gradle                       @BACKEND_A
-/settings.gradle                    @BACKEND_A
-/.github/                          @BACKEND_A
-/AGENTS.md                         @BACKEND_A
-/docs/                             @BACKEND_A
+# @parkc31 를 실제 GitHub 아이디로 바꾼다.
+/src/main/java/com/batong/global/  @parkc31
+/build.gradle                       @parkc31
+/settings.gradle                    @parkc31
+/.github/                          @parkc31
+/AGENTS.md                         @parkc31
+/docs/                             @parkc31
