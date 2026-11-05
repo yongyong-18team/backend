@@ -52,6 +52,8 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    // main()을 거치지 않는 테스트도 서버와 같은 KST로 돈다 (TRD 6장)
+    systemProperty 'user.timezone', 'Asia/Seoul'
 }
 
 // 배포용 실행 jar 하나만 만든다 (plain jar 생성 안 함)
