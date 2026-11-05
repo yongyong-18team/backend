@@ -480,7 +480,7 @@ sequenceDiagram
 - `/api/v1/public/shares/` 경로는 access log에서 토큰 마스킹
 
 ### 12-4. CI/CD
-- PR → main: 빌드 + 테스트, PR 제목 형식 검사. 실패 시 머지 차단
+- PR → main: 빌드 + 테스트. 실패 시 머지 차단. PR 제목 형식은 권장, 검사 없음
 - main push: 빌드 → jar를 scp로 서버에 복사 → `deploy.sh`가 jar 교체·재시작·헬스체크, 실패하면 이전 jar로 되돌림
 - Docker 이미지와 레지스트리는 쓰지 않는다. 필요한 Secrets는 SSH 접속 정보뿐이다
 - 배포는 레포 변수 `DEPLOY_ENABLED=true`일 때만 돈다. 서버 준비 전이나 시연 동결 중에는 끈다
@@ -543,7 +543,7 @@ sequenceDiagram
 ## 15. 개발 규약
 - 상세 규칙은 레포의 `CONTRIBUTING.md`(협업), `AGENTS.md`(코드·AI 규칙)
 - 이슈 하나 = PR 하나. 브랜치 `{type}/{이슈번호}-{설명}`. PR 리뷰 1명 승인 후 Squash Merge
-- 커밋·PR 제목: Conventional Commits `type(scope): 요약 (API ID)`. PR 제목은 CI가 검사
+- 커밋·PR 제목: Conventional Commits `type(scope): 요약 (API ID)`. PR 제목도 권장, 검사 없음
 - 엔티티 setter 금지, 상태 변경은 의미 있는 메서드로
 - DTO는 record
 - 시각은 Instant, 날짜는 LocalDate
