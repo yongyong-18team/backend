@@ -33,6 +33,8 @@
   - 시각 TIMESTAMPTZ (Java `Instant`), 날짜 DATE (Java `LocalDate`, KST)
   - enum은 VARCHAR (JPA `@Enumerated(STRING)`)
   - 계산 가능한 상태값은 저장하지 않음 (유도 속성)
+  - created_at·updated_at은 NOT NULL이고 DB 기본값이 없다. 값은 JPA(`@CreationTimestamp`·`@UpdateTimestamp` 등)가 채우고, 시드 SQL은 `now()`를 직접 넣는다
+  - 약한 개체(ai_analysis, extracted_item)는 복합 PK로 만들었다(V1). JPA는 `@IdClass`나 `@EmbeddedId`로 매핑한다
 
 ---
 
@@ -250,8 +252,8 @@ erDiagram
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | consent_id | BIGINT | PK | |
-| user_id | BIGINT | FK, CASCADE | |
-| subject_id | BIGINT | FK, CASCADE | |
+| user_id | BIGINT | FK, NOT NULL, CASCADE | |
+| subject_id | BIGINT | FK, NOT NULL, CASCADE | |
 | consent_type | VARCHAR(30) | NOT NULL | PRIVACY / SENSITIVE_INFO / AI_PROCESSING / SUBJECT_AUTHORITY |
 | terms_version | VARCHAR(10) | NOT NULL | |
 | agreed_at | TIMESTAMPTZ | NOT NULL | |
@@ -264,8 +266,8 @@ erDiagram
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | invitation_id | BIGINT | PK | |
-| subject_id | BIGINT | FK, CASCADE | 초대한 사람은 subject.owner로 유도 |
-| invitee_user_id | BIGINT | FK users, CASCADE | |
+| subject_id | BIGINT | FK, NOT NULL, CASCADE | 초대한 사람은 subject.owner로 유도 |
+| invitee_user_id | BIGINT | FK users, NOT NULL, CASCADE | |
 | status | VARCHAR(10) | NOT NULL | PENDING / ACCEPTED / REJECTED / CANCELED / REVOKED |
 | created_at | TIMESTAMPTZ | NOT NULL | |
 | responded_at | TIMESTAMPTZ | NULL | |
@@ -279,7 +281,7 @@ erDiagram
 |---|---|---|---|
 | subject_id | BIGINT | PK, FK, CASCADE | |
 | user_id | BIGINT | PK, FK, CASCADE | |
-| invitation_id | BIGINT | FK, UQ | |
+| invitation_id | BIGINT | FK, UQ, NOT NULL | |
 | activated_at | TIMESTAMPTZ | NOT NULL | |
 
 - 행이 있으면 활성 공동 관리자다. 해제(6.3)하면 행을 삭제하고 invitation을 REVOKED로, 그 사람이 만든 활성 공유의 revoked_at을 같은 트랜잭션에서 설정한다.
@@ -291,12 +293,12 @@ erDiagram
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | diary_id | BIGINT | PK | 작성자는 subject.owner로 유도 |
-| subject_id | BIGINT | FK, CASCADE | |
+| subject_id | BIGINT | FK, NOT NULL, CASCADE | |
 | diary_date | DATE | NOT NULL | |
 | content | TEXT | NOT NULL | STT 결과를 보호자가 확인·수정한 최종본. 음성은 저장하지 않음 |
 | input_type | VARCHAR(10) | NOT NULL | VOICE / TEXT |
 | analysis_status | VARCHAR(12) | NOT NULL | PENDING / PROCESSING / DONE / FAILED |
-| created_at / updated_at | TIMESTAMPTZ | | |
+| created_at / updated_at | TIMESTAMPTZ | NOT NULL | |
 | | | INDEX(subject_id, diary_date) | |
 
 - 검토 상태(PRD 7-1 review_status)는 저장하지 않는다. extracted_item에 PENDING이 남아 있으면 "검토 대기"로 계산한다.
@@ -312,7 +314,7 @@ erDiagram
 | raw_json | JSONB | NULL | LLM 원본. LLM 실패 + 키워드 적중 CRISIS면 NULL. 어떤 API로도 노출 금지 |
 | prompt_version | VARCHAR(20) | NOT NULL | 키워드만으로 판정하면 `keyword-only` |
 | model_name | VARCHAR(50) | NULL | 위와 같은 경우 NULL |
-| created_at | TIMESTAMPTZ | | |
+| created_at | TIMESTAMPTZ | NOT NULL | |
 
 **extracted_item** (DIARY의 약한 개체)
 
@@ -328,7 +330,7 @@ erDiagram
 | episode_no | SMALLINT | NULL | 같은 사건의 트리거·행동·대처 묶음 |
 | evidence_quote | VARCHAR(500) | NOT NULL | 원문 근거 |
 | status | VARCHAR(10) | NOT NULL | PENDING / APPROVED / EXCLUDED |
-| edited | BOOLEAN | DEFAULT false | |
+| edited | BOOLEAN | NOT NULL, DEFAULT false | |
 
 - label 값: 소리 지름 / 자해 행동 / 타인 공격 / 물건 파손 / 뛰쳐나감 / 반복 행동 / 수면 문제 / 식사 거부 / 기타 행동
 
@@ -353,13 +355,13 @@ erDiagram
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | entry_id | BIGINT | PK | |
-| subject_id | BIGINT | FK, CASCADE | |
+| subject_id | BIGINT | FK, NOT NULL, CASCADE | |
 | section | VARCHAR(20) | NOT NULL | 위 7종 |
 | content | VARCHAR(500) | NOT NULL | |
 | source_type | VARCHAR(12) | NOT NULL | ONBOARDING / DIARY / MANUAL |
 | src_diary_id, src_item_no | BIGINT, SMALLINT | 복합 FK → extracted_item, SET NULL, UQ | 일대일(BECOMES) |
 | src_question_code | VARCHAR(5) | NULL | 온보딩 출처 Q1~Q5 |
-| created_at / updated_at | TIMESTAMPTZ | | 설명서 갱신일 = max(updated_at), 저장 안 함 |
+| created_at / updated_at | TIMESTAMPTZ | NOT NULL | 설명서 갱신일 = max(updated_at), 저장 안 함 |
 | | | INDEX(subject_id, section) | |
 
 - 중복 저장 방지(PRD 2.3): 같은 subject·section에 공백을 제거한 content가 같은 항목이 있으면 새로 만들지 않는다. 서비스 계층에서 검사한다.
@@ -372,7 +374,7 @@ erDiagram
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | share_id | BIGINT | PK | |
-| subject_id | BIGINT | FK, CASCADE | |
+| subject_id | BIGINT | FK, NOT NULL, CASCADE | |
 | created_by | BIGINT | FK users, SET NULL | 초안 생성·승인자 |
 | document_type | VARCHAR(10) | NOT NULL | DAILY / WEEKLY / GUIDE |
 | recipient_label | VARCHAR(30) | NULL | 받는 사람 메모 (공유 내역 구분용) |
@@ -385,7 +387,7 @@ erDiagram
 | approved_at | TIMESTAMPTZ | NULL | NULL이면 초안 |
 | expires_at | TIMESTAMPTZ | NULL | 승인 시각 + 7일 |
 | revoked_at | TIMESTAMPTZ | NULL | |
-| created_at | TIMESTAMPTZ | | |
+| created_at | TIMESTAMPTZ | NOT NULL | |
 | | | CHECK: (approved_at IS NULL) = (token_hash IS NULL) | |
 
 - 상태는 계산한다: approved_at 없음 → DRAFT, revoked_at 있음 → REVOKED, 현재가 expires_at 이후 → EXPIRED, 그 외 ACTIVE
@@ -439,13 +441,13 @@ MVP의 5.1→5.2는 저장 없이 조건(단기/장기, 날짜, 지역)으로 �
 | eligibility_summary | TEXT | | 사람이 읽는 이용 조건 (5.3) |
 | target_conditions | JSONB | NOT NULL | 나이 범위 등 매칭 규칙 |
 | procedure | TEXT | | 신청 절차 |
-| source_doc / doc_version | VARCHAR | | 근거 지침·연도 |
+| source_doc / doc_version | VARCHAR(200) / VARCHAR(20) | | 근거 지침·연도 |
 
 **program_facility_type**
 
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
-| program_id | BIGINT | PK, FK support_program | |
+| program_id | BIGINT | PK, FK support_program, CASCADE | |
 | facility_type | VARCHAR(50) | PK | 예: 긴급돌봄 → 단기거주시설 |
 
 **wellbeing_signal** (비공개)
@@ -457,7 +459,7 @@ MVP의 5.1→5.2는 저장 없이 조건(단기/장기, 날짜, 지역)으로 �
 | diary_id | BIGINT | FK diary, SET NULL | |
 | signal_type | VARCHAR(10) | NOT NULL | BURNOUT / CRISIS |
 | detected_date | DATE | NOT NULL | |
-| created_at | TIMESTAMPTZ | | |
+| created_at | TIMESTAMPTZ | NOT NULL | |
 | | | UQ(user_id, signal_type, detected_date) | 같은 날 중복 집계 방지 |
 
 - share, guide_entry와 연결 경로가 없다. 주 보호자 본인 API에서만 조회한다.
@@ -507,4 +509,4 @@ MVP의 5.1→5.2는 저장 없이 조건(단기/장기, 날짜, 지역)으로 �
 | 5 | 수신자 유형 | MVP 제외. 받는 사람 메모(recipient_label)만 선택 입력 |
 | 6 | 공유 유효기간 | 7일 고정 |
 | 7 | 돌봄 공백 | MVP는 저장 없는 조건 검색. AI 감지·저장은 P1 |
-| 8 | 약한 개체 JPA 구현 | 대리키 + UNIQUE 허용 |
+| 8 | 약한 개체 JPA 구현 | V1은 3-2 표대로 복합 PK. 대리키 + UNIQUE로 바꾸려면 새 마이그레이션 |
