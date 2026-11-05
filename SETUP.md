@@ -56,7 +56,7 @@ git push -u origin main
 - Require linear history
 - Require a pull request before merging: 승인 1명
   - **Require review from Code Owners는 켜지 않는다.** 코드 오너가 백엔드 A 한 명뿐이라 A가 올린 `global/` PR을 아무도 승인할 수 없게 된다. CODEOWNERS는 리뷰 자동 요청용으로만 쓴다.
-- Require status checks to pass: `build`, `pr-title` (첫 PR에서 CI가 한 번 돈 뒤에 목록에 나타난다)
+- Require status checks to pass: `build` (첫 PR에서 CI가 한 번 돈 뒤에 목록에 나타난다)
 - Bypass list는 비워 둔다. 관리자도 PR로 머지한다.
 
 **Code security** (Public 레포는 무료)
