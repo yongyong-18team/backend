@@ -26,6 +26,7 @@
 - Base URL: `/api/v1`
 - 인증: `Authorization: Bearer {accessToken}`. 7일, Refresh 없음. 로그아웃은 클라이언트에서 토큰 삭제
 - 권한 표기: 공개 / 로그인 / OWNER / CO. `/subjects/{subjectId}/**` 경로는 서버가 역할을 판정한다(TRD 7-2).
+- 공통 에러 처리: 입력 검증 실패와 지원하지 않는 메서드·Content-Type은 `COMMON_VALIDATION`, 없는 경로는 `COMMON_NOT_FOUND`, 예상하지 못한 서버 오류는 `COMMON_INTERNAL_ERROR`. 업로드 크기 초과는 `STT_FILE_TOO_LARGE`. 관리자 API(`X-Admin-Key`) 거부는 `COMMON_FORBIDDEN`
 - 응답 형식
 ```json
 { "success": true, "data": { }, "error": null }
@@ -694,6 +695,7 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 | COMMON_FORBIDDEN | 403 | 이용할 수 있는 권한이 없어요. |
 | COMMON_NOT_FOUND | 404 | 정보를 찾을 수 없어요. |
 | COMMON_TOO_MANY_REQUESTS | 429 | 잠시 후 다시 시도해 주세요. |
+| COMMON_INTERNAL_ERROR | 500 | 잠시 후 다시 시도해 주세요. |
 | AUTH_INVALID_LOGIN_ID_FORMAT | 400 | 아이디는 영문 소문자와 숫자로 4~20자예요. |
 | AUTH_INVALID_PASSWORD_FORMAT | 400 | 비밀번호는 영문과 숫자를 넣어 8~20자로 만들어 주세요. |
 | AUTH_DUPLICATE_LOGIN_ID | 409 | 이미 사용 중인 아이디예요. |
