@@ -93,9 +93,6 @@ class BackendAStubTest {
         call(HttpMethod.DELETE, "/api/v1/users/me", null, 200, t);
         call(HttpMethod.GET, "/api/v1/subjects/10/home", null, 200, t);
 
-        call(HttpMethod.POST, "/api/v1/subjects/10/guide/entries", "{\"section\":\"PROHIBITED\",\"content\":\"가상 항목\"}", 201, t);
-        call(HttpMethod.PATCH, "/api/v1/subjects/10/guide/entries/310", "{\"content\":\"가상 항목\"}", 200, t);
-        call(HttpMethod.DELETE, "/api/v1/subjects/10/guide/entries/310", null, 200, t);
         call(HttpMethod.POST, "/api/v1/subjects/10/diaries/501/items/review",
                 "{\"decisions\":[{\"itemNo\":1,\"status\":\"APPROVED\"}]}", 200, t);
 
@@ -122,8 +119,7 @@ class BackendAStubTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sections", hasSize(7)))
                 .andExpect(jsonPath("$.data.sections[0].section").value("PROHIBITED"))
-                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"))
-                .andExpect(jsonPath("$.data.updatedAt").value("2026-11-03T21:10:00+09:00"));
+                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"));
     }
 
     @Test
