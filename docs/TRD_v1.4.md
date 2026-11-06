@@ -47,7 +47,7 @@ PRD의 기능 요구사항을 구현하기 위한 시스템 구조, 기술 스�
 - 해커톤 MVP다. 실사용자 데이터 없이 가상 데이터만 쓴다.
 - 서버는 단일 인스턴스로 운영한다.
 - 클라이언트는 React 모바일 웹이다(2026-11-03 프론트 결정). 프론트 두 명 모두 Android 실프로젝트 경험이 없고, 2주 안에 시연 완성도를 내는 것을 우선했다. 실서비스는 Android 앱으로 확장할 수 있다. 서버 API는 앱으로 바뀌어도 그대로 쓴다.
-- LLM 공급자, STT 공급자는 미정이다. 어댑터 뒤에 두어 정해져도 다른 코드는 바뀌지 않게 한다.
+- LLM·STT 공급자는 MVP에서 무료 티어(LLM Gemini Flash, STT Groq Whisper)로 정했다(1-5, 8-6). 어댑터 뒤에 두어 다른 서비스로 바꿔도 다른 코드는 바뀌지 않게 한다.
 - 공공데이터에 용인 데이터가 있는지 기획이 확인 중이다.
 
 ### 1-5. 결정 사항
@@ -180,8 +180,8 @@ Android 앱 전환은 실서비스 단계 과제로 둔다. 그때도 서버 API
 | 테스트 | JUnit 5, Mockito, Testcontainers | `@MockitoBean` |
 | 빌드·배포 | Gradle 8.14 (Groovy), GitHub Actions, systemd | 로컬 DB는 `docker compose up -d db` |
 | 인프라 | AWS Lightsail (Ubuntu 24.04), Nginx, Let's Encrypt | 서버·DB·프록시를 한 대에. 12-1 |
-| LLM | 미정 (Claude / OpenAI / HyperCLOVA X) | 8-6 |
-| STT | 미정 (CLOVA Speech / Google STT / OpenAI Whisper 계열) | 8-2. webm·mp4를 둘 다 받는 공급자 |
+| LLM | Google Gemini Flash (AI Studio 무료 키). 이후 HyperCLOVA X 등 | 8-6 |
+| STT | Groq `whisper-large-v3` (무료). 이후 CLOVA Speech 등 | 8-2. webm·mp4·m4a를 변환 없이 받음 |
 | 프론트 | React 모바일 웹, Vercel | 3-3 |
 
 ---
@@ -313,7 +313,7 @@ NONE        그 외 → 403
 - 받는 형식: `audio/webm`(Chrome), `audio/mp4`·`audio/m4a`(Safari). 서버에서 형식 변환(ffmpeg 등)은 하지 않는다. 두 형식을 그대로 받는 공급자를 고른다
 - 음성은 메모리에서만 처리, 디스크·DB에 쓰지 않음
 - STT 타임아웃 20초, 재시도 없음. 실패하면 "글로 입력해 주세요"로 안내(STT_FAILED)
-- 공급자는 고령 화자 가상 발화 10개로 인식률을 비교한 뒤 결정. `AI_MODE=mock`이면 고정 문장을 돌려준다
+- 공급자: MVP는 Groq `whisper-large-v3`(`POST https://api.groq.com/openai/v1/audio/transcriptions`, multipart `file`·`model`, `language=ko`). webm·mp4·m4a를 그대로 받고 파일 25MB까지(무료 티어), 무료 한도는 분당 20회·하루 2,000회·오디오 시간당 7,200초이며 팀 전체가 나눠 쓴다. 고령 화자 가상 발화 10개로 인식률을 확인하고 부족하면 교체한다. `AI_MODE=mock`이면 고정 문장을 돌려준다
 
 ### 8-3. 일기 분석 흐름
 
@@ -370,7 +370,9 @@ sequenceDiagram
 - 재분석 시 analysis_no를 1 올린다. PENDING 항목은 삭제 후 새로 만들고, 승인·제외 항목은 유지한다. 새 item_no는 기존 최댓값 다음부터.
 - 프롬프트는 `resources/prompts/{작업}_v{n}.txt`로 관리하고 ai_analysis.prompt_version에 기록한다.
 
-### 8-6. LLM 공급자 (미정)
+### 8-6. LLM 공급자
+MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델 이름과 무료 한도, 구조화 출력(응답 스키마) 지원은 백엔드 B가 AI Studio에서 확인해 `LLM_MODEL`로 확정하고 이 절에 적는다. 평가셋 첫 10건에서 품질이 부족하면 Groq 호스팅 모델로 바꿔 비교한다.
+
 `LlmClient` 인터페이스 뒤에 구현체를 두고 `LLM_PROVIDER`로 선택한다. 선정 기준:
 - 구조화 JSON 출력 지원 (필수)
 - 한국어 공감 문장 품질 (평가셋 비교)
@@ -378,6 +380,16 @@ sequenceDiagram
 - 데이터 보존·학습 정책
 
 해커톤은 가상 데이터만 쓰므로 해외 API도 가능하다. 실서비스 전환 시 국외 이전 문제(개인정보보호법 제28조의8) 때문에 국내 모델이나 이전 동의가 필요하므로 공급자 교체 가능한 구조를 유지한다.
+
+**MVP 이후 변경 계획**
+
+| 영역 | MVP | 실서비스 전환 시 |
+|---|---|---|
+| STT | Groq Whisper (무료) | 네이버 CLOVA Speech. 국내 처리, 한국어 특화 |
+| LLM | Gemini Flash (무료) | HyperCLOVA X 등 국내 처리 모델, 또는 입력을 학습에 쓰지 않는 유료 계약의 상용 모델 |
+
+- 무료 티어는 제공사가 입력을 서비스 개선에 쓸 수 있다는 약관이 있다. 가상 데이터만 쓰는 MVP는 문제없지만, **실제 보호자 데이터를 받기 전에 반드시** 위 전환을 끝낸다.
+- 무료 티어는 요청 한도가 있어 429가 날 수 있다. 이 경우 기존 실패 흐름(STT_FAILED, AI_TIMEOUT 또는 키워드 CRISIS)을 그대로 쓴다.
 
 ### 8-7. Mock 모드
 `AI_MODE=mock`이면 Mock 구현체가 평가셋 정답 응답을 반환한다. 프론트 개발, CI 테스트, 시연 중 장애 대응에 쓴다.
@@ -616,8 +628,8 @@ sequenceDiagram
 
 | # | 항목 | 담당 | 영향 |
 |---|---|---|---|
-| 1 | LLM 공급자 | 백엔드 A·B (평가셋 비교) | infra.llm, 타임아웃 재조정 |
-| 2 | STT 공급자 (webm·mp4 지원 확인 포함) | 백엔드 B (발화 테스트) | infra.stt |
+| 1 | LLM 공급자: Gemini Flash로 결정. 모델 이름·한도·구조화 출력 확인과 평가셋 첫 10건 품질 확인이 남음 | 백엔드 B | infra.llm, 타임아웃 재조정 |
+| 2 | STT 공급자: Groq Whisper로 결정(webm·mp4·m4a 지원 확인됨). 가상 발화 10개 인식률 확인이 남음 | 백엔드 B | infra.stt |
 | 3 | 도메인 확보 | 백엔드 A | HTTPS, 웹 마이크, CORS |
 | 4 | AI_MODE 런타임 전환(ADMIN-02) 구현 여부 | 백엔드 A | 시연 안정성 |
 | 5 | 해커톤 사전 개발 허용 범위 | 팀 (대회 규정) | 전체 일정 |
