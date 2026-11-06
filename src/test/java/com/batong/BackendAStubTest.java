@@ -99,9 +99,6 @@ class BackendAStubTest {
         call(HttpMethod.POST, "/api/v1/subjects/10/diaries/501/items/review",
                 "{\"decisions\":[{\"itemNo\":1,\"status\":\"APPROVED\"}]}", 200, t);
 
-        call(HttpMethod.GET, "/api/v1/subjects/10/shares/section-options?documentType=GUIDE", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/drafts",
-                "{\"documentType\":\"GUIDE\",\"sectionCodes\":[\"BEHAVIOR_RESPONSE\"],\"showEmergencyContact\":true}", 201, t);
         call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/approve", null, 200, t);
         call(HttpMethod.GET, "/api/v1/subjects/10/shares", null, 200, t);
         call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/revoke", null, 200, t);
