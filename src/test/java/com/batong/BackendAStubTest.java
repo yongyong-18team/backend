@@ -1,6 +1,8 @@
 package com.batong;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -8,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,6 +34,21 @@ class BackendAStubTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    JdbcClient jdbc;
+
+    // 스텁 로그인이 주는 userId 1·subjectId 10을 실제 소유 관계로 만들어 둔다
+    @BeforeEach
+    void seedOwner() {
+        jdbc.sql("INSERT INTO users (user_id, login_id, password_hash, created_at, updated_at) VALUES (1, 'mom1234', 'x', now(), now())").update();
+        jdbc.sql("INSERT INTO care_subject (subject_id, owner_user_id, name, birth_year, district, created_at, updated_at) VALUES (10, 1, '민지', 2001, 'SUJI', now(), now())").update();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        jdbc.sql("DELETE FROM users WHERE user_id = 1").update();
+    }
 
     private String loginToken() throws Exception {
         String body = mvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
