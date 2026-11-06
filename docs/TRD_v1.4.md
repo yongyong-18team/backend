@@ -417,6 +417,7 @@ MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델 이름
 1. 입력: 단기·장기(careTerm, 생략 가능), 필요한 날짜, 지역(생략하면 대상자 등록 지역), 대상자 나이(birth_year에서 계산)
 2. 제도: support_program.care_term이 일치하거나 BOTH이고, target_conditions(나이 범위 등)를 만족하는 것. Java 규칙으로 처리, LLM 사용 안 함
 3. 시설: 고른 제도에 매핑된 시설 유형(program_facility_type)의 시설. 같은 구를 먼저, 다음 다른 구
+   - 시설이 0건이면 응답에 제도만 담는다. 제도도 없으면 빈 배열(에러 아님)
 4. 저장하지 않고 응답만 한다. 추천 이유는 MVP에서 템플릿 문장(AI-04는 P1)
 5. 모든 결과에 "실제 신청 자격과 이용 가능 여부는 해당 기관에 확인이 필요합니다" 표시(PRD 5.2)
 6. 5.0에서 바로 들어오면 careTerm 없이 지역만으로 검색한다

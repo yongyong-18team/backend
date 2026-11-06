@@ -18,6 +18,7 @@
 | 1.2 | 2026-11-03 | PRD 수정본 반영. 온보딩 일괄 등록(ONB-01 하나로 통합), 보호자 프로필(USER-02), 대상자 필드 변경, 설명서 섹션 7종 재정의, 공유 수신자 유형 삭제·비상 연락처 표시 여부·유효기간 7일 고정, 주간 리포트 최근 7일·일별 추이·주요 변화, 돌봄 지원 조건 검색(RES-02) 신설, GAP API는 P1로 이동, 6.3·6.2.1 응답 필드 보강 |
 | 1.3 | 2026-11-03 | 플랫폼 React 모바일 웹 확정. STT-01 상시 사용(조건부 문구 삭제), 받는 녹음 형식에 Safari `audio/mp4` 추가, 웹 클라이언트 규약(토큰 저장, 401 처리, CORS, 수신자 페이지 경로) 추가 |
 | 1.4 | 2026-11-03 | 서버 구성 변경(Lightsail)에 맞춰 문서 버전만 맞춤. API 변경 없음 |
+| 1.4.1 | 2026-11-07 | REPORT-01·ADMIN-01 응답 예시 추가, RES-02 시설 0건 규칙, DIARY-02 일반 예시의 `itemCount`와 항목 수 일치 (#58) |
 
 ---
 
@@ -330,6 +331,12 @@ relation: PARENT / OTHER
       "content": "30분 넘게 소리를 지름",
       "timeSlot": "AFTERNOON", "durationMin": 30, "episodeNo": 1,
       "evidenceQuote": "30분 넘게 소리를 질렀다", "status": "PENDING"
+    },
+    {
+      "itemNo": 3, "category": "RESPONSE", "section": "BEHAVIOR_RESPONSE", "label": null,
+      "content": "차에 태워 트로트를 틀어주니 조용해짐",
+      "timeSlot": "AFTERNOON", "durationMin": null, "episodeNo": 1,
+      "evidenceQuote": "차에 태워서 트로트 틀어주니까 조용해졌다", "status": "PENDING"
     }
   ],
   "burnoutNotice": false
@@ -389,6 +396,19 @@ relation: PARENT / OTHER
 - 같은 섹션에 같은 내용이 이미 있으면 설명서 항목을 새로 만들지 않고 `duplicateSkippedCount`에 센다(PRD 2.3 중복 저장 방지).
 
 에러: `GUIDE_ITEM_NOT_FOUND` 404, `GUIDE_NOTHING_TO_APPLY` 400
+
+### REPORT-01 일일 기록 날짜 목록
+```json
+{
+  "from": "2026-10-28", "to": "2026-11-03",
+  "records": [
+    { "diaryId": 501, "diaryDate": "2026-11-03", "approvedCount": 3, "summary": "큰 소리에 불안 반응 · 음악으로 안정" }
+  ]
+}
+```
+- 승인(APPROVED) 항목이 하나 이상 있는 일기만 나온다.
+- `summary`는 승인 항목의 `content`를 이은 한 줄이다. 일기 원문, 공감 문장, 근거 문장은 쓰지 않는다. 공동 관리자에게는 원문 preview를 주지 않는다(HOME-01과 같은 규칙).
+- `from`·`to`를 생략했을 때의 기본 구간은 구현 PR에서 정해 여기에 적는다.
 
 ### REPORT-02 일일 기록
 ```json
@@ -633,7 +653,7 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 - district를 생략하면 대상자의 등록 지역을 쓴다.
 - 제도는 care_term과 target_conditions(나이 등)로, 시설은 제도에 매핑된 시설 유형 + 같은 구 우선으로 고른다. 저장하지 않는다.
 - `reasonText`는 MVP에서 템플릿 문장이다(AI-04는 P1).
-- 결과가 없으면 빈 배열(에러 아님).
+- 시설이 0건이면 `results`에 제도(PROGRAM)만 담는다. 제도도 없으면 빈 배열(에러 아님).
 
 에러: `RESOURCE_INVALID_CONDITION` 400
 
@@ -683,6 +703,14 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 }
 ```
 문구는 AI 명세 5-1과 같아야 한다. "전문기관 지원 확인"은 followUp으로 5.3에 간다.
+
+### ADMIN-01 공공데이터 적재·갱신
+`POST /admin/public-data/sync`, 헤더 `X-Admin-Key`
+```json
+{ "source": "YONGIN_API", "upsertedCount": 252 }
+```
+- `upsertedCount`는 이번 실행에서 추가하거나 갱신한 시설 수다. 위 숫자는 예시이고 실제 값이 아니다.
+- 키가 없거나 틀리거나 서버 키가 비어 있으면 `COMMON_FORBIDDEN` 403이다.
 
 ---
 

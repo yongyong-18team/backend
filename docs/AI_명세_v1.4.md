@@ -406,7 +406,7 @@ LLM이 만들지 않는다. 코드 상수로 두고 기획과 함께 확정한�
 ## 6. 평가셋
 
 ### 6-1. 형식
-`src/test/resources/ai-eval/analyze_diary.jsonl`, 한 줄에 한 사례
+`src/main/resources/ai-eval/analyze_diary.jsonl`, 한 줄에 한 사례 (Mock 모드가 서버 실행 중에도 이 파일과 `ai-eval/mock/{id}.json`을 읽으므로 `main`에 둔다)
 
 ```json
 {
