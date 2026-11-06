@@ -1,0 +1,43 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "아침부터 저녁까지 식사를 하나하나 챙긴 하루였네요.",
+  "items": [
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "아침에 밥을 반 공기 먹음",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "대상자가 밥을 반 공기 먹고"
+    },
+    {
+      "category": "MEDICATION",
+      "label": null,
+      "content": "아침에 약을 먹음",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "약을 먹었다"
+    },
+    {
+      "category": "COMMUNICATION",
+      "label": null,
+      "content": "배가 고프면 손으로 배를 두드려서 알림",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "배가 고프면 손으로 배를 두드려서 알려준다"
+    },
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "김치를 골라내고 먹음",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "저녁에는 김치를 다 골라내고 먹었다"
+    }
+  ],
+  "burnoutSignal": false
+}
