@@ -112,8 +112,9 @@ public class CareSubject {
         }
     }
 
-    /** 이름 2~20자 (ERD CHECK. 2자 이상은 LLM 마스킹 때문) */
+    /** 이름 2~20자 (ERD CHECK. 2자 이상은 LLM 마스킹 때문). 저장할 수 없는 문자는 COMMON_VALIDATION */
     public static void validateName(String name) {
+        requireStorable(name);
         int length = name.codePointCount(0, name.length());
         if (name.isBlank() || length < NAME_MIN || length > NAME_MAX) {
             throw new BusinessException(ErrorCode.SUBJECT_INVALID_NAME);
@@ -131,10 +132,18 @@ public class CareSubject {
         if (value.isBlank()) {
             return null;
         }
+        requireStorable(value);
         if (value.length() > maxLength) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         return value;
+    }
+
+    /** PostgreSQL은 NUL을 저장하지 못하고(500), 짝 없는 서로게이트는 저장할 때 조용히 '?'로 바뀐다(#65와 같은 규칙) */
+    private static void requireStorable(String value) {
+        if (value.indexOf('\u0000') >= 0 || value.codePoints().anyMatch(cp -> cp >= 0xD800 && cp <= 0xDFFF)) {
+            throw new BusinessException(ErrorCode.COMMON_VALIDATION);
+        }
     }
 
     private static int currentYear() {

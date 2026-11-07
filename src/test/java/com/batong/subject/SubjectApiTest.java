@@ -173,6 +173,26 @@ class SubjectApiTest {
     }
 
     @Test
+    void SUBJ_03_NUL_문자나_짝_없는_서로게이트는_500이_아니라_400이다() throws Exception {
+        for (String json : new String[]{
+                "{\"name\":\"민\\u0000지\"}",
+                "{\"dong\":\"풍덕\\u0000천동\"}",
+                "{\"emergencyContact\":\"어머니\\u0000\"}",
+                "{\"name\":\"민\\ud800지\"}",
+                "{\"emergencyContact\":\"어머니 \\udfff\"}"}) {
+            patchAs(owner, json)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error.code").value("COMMON_VALIDATION"));
+        }
+        Map<String, Object> row = row();
+        assertThat(row.get("name")).isEqualTo("민지");
+        assertThat(row.get("dong")).isEqualTo("풍덕천동");
+        assertThat(row.get("emergency_contact")).isNull();
+
+        patchAs(owner, "{\"emergencyContact\":\"어머니 \\ud83d\\udcde 010-0000-0000\"}").andExpect(status().isOk());
+    }
+
+    @Test
     void SUBJ_03_CO는_403이고_값이_바뀌지_않는다() throws Exception {
         patchAs(coManager, "{\"name\":\"다른이름\"}")
                 .andExpect(status().isForbidden())
