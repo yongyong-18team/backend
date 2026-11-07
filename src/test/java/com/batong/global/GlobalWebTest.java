@@ -91,6 +91,16 @@ class GlobalWebTest {
     }
 
     @Test
+    void Authorization_헤더_형식이_이상해도_5xx_없이_401이다() throws Exception {
+        for (String value : new String[]{"Bearer", "Bearer ", "Basic abc", "bearer " + jwtProvider.issue(1L),
+                jwtProvider.issue(1L), "Bearer a b c", "Bearer " + "a".repeat(20_000)}) {
+            mvc.perform(get("/api/v1/test-probe/me").header("Authorization", value))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error.code").value("COMMON_UNAUTHORIZED"));
+        }
+    }
+
+    @Test
     void 유효한_토큰이면_principal이_userId이고_시각은_KST_오프셋() throws Exception {
         mvc.perform(get("/api/v1/test-probe/me").header("Authorization", bearer()))
                 .andExpect(status().isOk())
