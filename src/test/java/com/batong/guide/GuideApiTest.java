@@ -192,6 +192,13 @@ class GuideApiTest {
     }
 
     @Test
+    void 짝_없는_서로게이트는_조용히_바뀌지_않고_400이다() throws Exception {
+        add(ownerId, subjectId, "PROHIBITED", "a\\ud800b").andExpect(status().isBadRequest());
+        add(ownerId, subjectId, "PROHIBITED", "a\\udfffb").andExpect(status().isBadRequest());
+        add(ownerId, subjectId, "PROHIBITED", "귤 \\ud83c\\udf4a").andExpect(status().isCreated());
+    }
+
+    @Test
     void 다른_대상자의_항목은_내_대상자_경로로도_수정_삭제할_수_없다() throws Exception {
         long otherEntry = jdbc.sql("""
                 INSERT INTO guide_entry (subject_id, section, content, source_type, created_at, updated_at)

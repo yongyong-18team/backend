@@ -117,11 +117,15 @@ public class GuideService {
     /** content 1~500자. 앞뒤 공백은 잘라 저장한다. */
     private static String validContent(String raw) {
         String content = raw == null ? "" : raw.strip();
-        // PostgreSQL은 NUL 문자를 저장하지 못한다
-        if (content.isEmpty() || content.length() > MAX_CONTENT || content.indexOf('\u0000') >= 0) {
+        if (content.isEmpty() || content.length() > MAX_CONTENT || !storable(content)) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         return content;
+    }
+
+    /** PostgreSQL은 NUL을 저장하지 못하고, 짝 없는 서로게이트는 저장할 때 조용히 '?'로 바뀐다. */
+    private static boolean storable(String s) {
+        return s.indexOf('\u0000') < 0 && s.codePoints().noneMatch(cp -> cp >= 0xD800 && cp <= 0xDFFF);
     }
 
     private static String squash(String s) {
