@@ -101,8 +101,7 @@ public class ShareService {
             throw new BusinessException(ErrorCode.SHARE_NO_APPROVED_CONTENT);
         }
         String label = request.recipientLabel() == null ? null : request.recipientLabel().strip();
-        // PostgreSQL은 NUL 문자를 저장하지 못한다
-        if (label != null && (label.length() > MAX_LABEL || label.indexOf('\u0000') >= 0)) {
+        if (label != null && (label.length() > MAX_LABEL || !storable(label))) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         if (label != null && label.isEmpty()) {
@@ -159,6 +158,11 @@ public class ShareService {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         return result;
+    }
+
+    /** PostgreSQL은 NUL을 저장하지 못하고, 짝 없는 서로게이트는 저장할 때 조용히 '?'로 바뀐다. */
+    private static boolean storable(String s) {
+        return s.indexOf('\u0000') < 0 && s.codePoints().noneMatch(cp -> cp >= 0xD800 && cp <= 0xDFFF);
     }
 
     private static GuideSection parseSection(String code) {

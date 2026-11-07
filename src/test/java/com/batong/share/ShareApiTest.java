@@ -214,6 +214,13 @@ class ShareApiTest {
     }
 
     @Test
+    void recipientLabel의_짝_없는_서로게이트는_400이고_이모지는_허용한다() throws Exception {
+        String base = "{\"documentType\":\"GUIDE\",\"sectionCodes\":[\"COMMUNICATION\"],\"recipientLabel\":\"";
+        draft(ownerId, subjectId, base + "a\\ud800b\"}").andExpect(status().isBadRequest());
+        draft(ownerId, subjectId, base + "선생님 \\ud83c\\udf4a\"}").andExpect(status().isCreated());
+    }
+
+    @Test
     void DAILY는_일기_ID가_필수이고_그_일기의_승인_항목만_섹션별로_담는다() throws Exception {
         long diaryId = diary(subjectId, "2026-11-03");
         item(diaryId, 1, "TRIGGER", "옆 건물 공사 소리가 나자 불안해함", "APPROVED");
