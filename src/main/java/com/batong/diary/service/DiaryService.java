@@ -16,19 +16,34 @@ import com.batong.global.enums.InputType;
 import com.batong.global.enums.ItemCategory;
 import com.batong.global.enums.ItemStatus;
 import com.batong.global.enums.TimeSlot;
+import com.batong.diary.domain.Diary;
+import com.batong.diary.repository.DiaryRepository;
+import com.batong.global.auth.SubjectRole;
+import com.batong.global.auth.SubjectRoleResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
-/** 스텁: API 명세 예시를 돌려준다. 실제 구현은 #25(DIARY-01), #26(DIARY-02), #27(DIARY-03~05) */
+/** DIARY-01 구현. DIARY-02~05는 스텁: API 명세 예시를 돌려준다. 실제 구현은 #26(DIARY-02), #27(DIARY-03~05) */
 @Service
+@RequiredArgsConstructor
 public class DiaryService {
 
     private static final LocalDate DIARY_DATE = LocalDate.of(2026, 11, 3);
 
+    private final DiaryRepository diaryRepository;
+    private final SubjectRoleResolver roleResolver;
+
+    /** 일기 원문을 다루므로 OWNER만(TRD 7-2) */
+    @Transactional
     public DiaryCreateResponse create(Long subjectId, Long userId, DiaryCreateRequest request) {
-        return new DiaryCreateResponse(501L, AnalysisStatus.PENDING);
+        roleResolver.require(subjectId, userId, SubjectRole.OWNER);
+        Diary diary = diaryRepository.save(
+                Diary.create(subjectId, request.diaryDate(), request.content(), request.inputType()));
+        return new DiaryCreateResponse(diary.getId(), diary.getAnalysisStatus());
     }
 
     /** 명세 예시는 itemCount 3에 항목 2개만 적혀 있어, AI 명세 3-3 예시의 세 번째(RESPONSE)까지 넣었다 */
