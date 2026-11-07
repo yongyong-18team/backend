@@ -207,6 +207,13 @@ class ShareApiTest {
     }
 
     @Test
+    void recipientLabel에_NUL_문자가_있으면_500이_아니라_400이다() throws Exception {
+        draft(ownerId, subjectId, "{\"documentType\":\"GUIDE\",\"sectionCodes\":[\"COMMUNICATION\"],\"recipientLabel\":\"a\\u0000b\"}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("COMMON_VALIDATION"));
+    }
+
+    @Test
     void DAILY는_일기_ID가_필수이고_그_일기의_승인_항목만_섹션별로_담는다() throws Exception {
         long diaryId = diary(subjectId, "2026-11-03");
         item(diaryId, 1, "TRIGGER", "옆 건물 공사 소리가 나자 불안해함", "APPROVED");

@@ -101,7 +101,8 @@ public class ShareService {
             throw new BusinessException(ErrorCode.SHARE_NO_APPROVED_CONTENT);
         }
         String label = request.recipientLabel() == null ? null : request.recipientLabel().strip();
-        if (label != null && label.length() > MAX_LABEL) {
+        // PostgreSQL은 NUL 문자를 저장하지 못한다
+        if (label != null && (label.length() > MAX_LABEL || label.indexOf('\u0000') >= 0)) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         if (label != null && label.isEmpty()) {
