@@ -168,6 +168,37 @@ class GuideApiTest {
     }
 
     @Test
+    void 동시에_같은_내용을_추가해도_행은_하나다() throws Exception {
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(10);
+        java.util.List<java.util.concurrent.Future<Integer>> results = new java.util.ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            results.add(pool.submit(() -> {
+                add(ownerId, subjectId, "DAILY_LIFE", "연타해도 한 번만").andReturn();
+                return 0;
+            }));
+        }
+        for (var f : results) {
+            f.get();
+        }
+        pool.shutdown();
+        assertThat(jdbc.sql("SELECT count(*) FROM guide_entry WHERE subject_id = :s AND content = '연타해도 한 번만'")
+                .param("s", subjectId).query(Integer.class).single()).isEqualTo(1);
+    }
+
+    @Test
+    void NUL_문자가_들어간_내용은_500이_아니라_400이다() throws Exception {
+        add(ownerId, subjectId, "PROHIBITED", "a\\u0000b").andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("COMMON_VALIDATION"));
+    }
+
+    @Test
+    void 짝_없는_서로게이트는_조용히_바뀌지_않고_400이다() throws Exception {
+        add(ownerId, subjectId, "PROHIBITED", "a\\ud800b").andExpect(status().isBadRequest());
+        add(ownerId, subjectId, "PROHIBITED", "a\\udfffb").andExpect(status().isBadRequest());
+        add(ownerId, subjectId, "PROHIBITED", "귤 \\ud83c\\udf4a").andExpect(status().isCreated());
+    }
+
+    @Test
     void 다른_대상자의_항목은_내_대상자_경로로도_수정_삭제할_수_없다() throws Exception {
         long otherEntry = jdbc.sql("""
                 INSERT INTO guide_entry (subject_id, section, content, source_type, created_at, updated_at)

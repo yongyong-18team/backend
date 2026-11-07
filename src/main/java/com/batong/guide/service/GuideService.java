@@ -62,6 +62,9 @@ public class GuideService {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         String content = validContent(request.content());
+        // 연타·동시 요청에서 둘 다 "없다"고 보고 저장하지 않도록 대상자 행을 잠가 같은 대상자의 추가를 줄 세운다
+        jdbc.sql("SELECT 1 FROM care_subject WHERE subject_id = :s FOR UPDATE").param("s", subjectId)
+                .query(Integer.class).single();
         // 같은 섹션에 공백을 뺀 내용이 같은 항목이 있으면 새로 만들지 않고 기존 항목을 돌려준다(ERD guide_entry)
         String key = squash(content);
         return entries.findBySubjectIdAndSection(subjectId, request.section()).stream()
@@ -114,10 +117,15 @@ public class GuideService {
     /** content 1~500자. 앞뒤 공백은 잘라 저장한다. */
     private static String validContent(String raw) {
         String content = raw == null ? "" : raw.strip();
-        if (content.isEmpty() || content.length() > MAX_CONTENT) {
+        if (content.isEmpty() || content.length() > MAX_CONTENT || !storable(content)) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         return content;
+    }
+
+    /** PostgreSQL은 NUL을 저장하지 못하고, 짝 없는 서로게이트는 저장할 때 조용히 '?'로 바뀐다. */
+    private static boolean storable(String s) {
+        return s.indexOf('\u0000') < 0 && s.codePoints().noneMatch(cp -> cp >= 0xD800 && cp <= 0xDFFF);
     }
 
     private static String squash(String s) {
