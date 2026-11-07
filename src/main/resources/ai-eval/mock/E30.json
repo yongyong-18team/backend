@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "저녁 시간에 많이 놀라셨겠어요.",
+  "items": [
+    {
+      "category": "BEHAVIOR",
+      "label": "자해 행동",
+      "content": "식사 중 갑자기 머리를 벽에 박음",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "대상자가 갑자기 머리를 벽에 박았다"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "좋아하는 담요를 덮어주니 10분쯤 지나 진정됨",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "좋아하는 담요를 덮어주니 10분쯤 지나 진정됐다"
+    },
+    {
+      "category": "PREFERENCE",
+      "label": null,
+      "content": "좋아하는 담요를 덮어주면 안정됨",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "좋아하는 담요를 덮어주니"
+    }
+  ],
+  "burnoutSignal": false
+}
