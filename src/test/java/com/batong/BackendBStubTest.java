@@ -14,7 +14,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -118,21 +117,12 @@ class BackendBStubTest {
     }
 
     @Test
-    void DIARY_01과_02는_저장_후_분석_결과를_준다() throws Exception {
+    void DIARY_01은_저장_후_PENDING을_준다() throws Exception {
+        // DIARY-02는 실제 구현으로 바뀌어 DiaryAnalyzeApiTest가 검증한다
         mvc.perform(post(diaries()).header("Authorization", owner).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"diaryDate\":\"2026-11-03\",\"content\":\"오후에 옆 건물 공사 소리가...\",\"inputType\":\"VOICE\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.analysisStatus").value("PENDING"));
-
-        mvc.perform(post(diaries() + "/501/analyze").header("Authorization", owner))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.result").value("REVIEW"))
-                .andExpect(jsonPath("$.data.itemCount").value(3))
-                .andExpect(jsonPath("$.data.items", hasSize(3)))
-                .andExpect(jsonPath("$.data.items[0].section").value("BEHAVIOR_RESPONSE"))
-                .andExpect(jsonPath("$.data.items[0].label").doesNotExist())
-                .andExpect(jsonPath("$.data.items[1].label").value("소리 지름"))
-                .andExpect(jsonPath("$.data.burnoutNotice").value(false));
     }
 
     @Test

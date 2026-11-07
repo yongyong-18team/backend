@@ -72,6 +72,21 @@ public class Diary {
         return diary;
     }
 
+    /** DIARY-02 분석이 끝남(NORMAL·CRISIS 모두) */
+    public void completeAnalysis() {
+        changeStatus(AnalysisStatus.DONE);
+    }
+
+    /** DIARY-02 분석 실패. 일기는 그대로 두고 다시 분석할 수 있다 */
+    public void failAnalysis() {
+        changeStatus(AnalysisStatus.FAILED);
+    }
+
+    private void changeStatus(AnalysisStatus status) {
+        this.analysisStatus = status;
+        this.updatedAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
+    }
+
     private static String validContent(String raw) {
         String content = raw == null ? "" : raw.strip();
         if (content.isEmpty()) {

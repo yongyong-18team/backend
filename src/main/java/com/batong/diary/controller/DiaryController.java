@@ -1,5 +1,6 @@
 package com.batong.diary.controller;
 
+import com.batong.analysis.service.DiaryAnalysisService;
 import com.batong.diary.dto.DiaryDtos.AnalyzeResponse;
 import com.batong.diary.dto.DiaryDtos.DiaryCreateRequest;
 import com.batong.diary.dto.DiaryDtos.DiaryCreateResponse;
@@ -34,6 +35,7 @@ import java.time.LocalDate;
 public class DiaryController {
 
     private final DiaryService diaryService;
+    private final DiaryAnalysisService diaryAnalysisService;
 
     @Operation(summary = "DIARY-01 일기 저장")
     @RequireRole(SubjectRole.OWNER)
@@ -49,7 +51,7 @@ public class DiaryController {
     @PostMapping("/{diaryId}/analyze")
     public ApiResponse<AnalyzeResponse> analyze(@PathVariable Long subjectId, @PathVariable Long diaryId,
                                                 @AuthenticationPrincipal Long userId) {
-        return ApiResponse.ok(diaryService.analyze(subjectId, diaryId, userId));
+        return ApiResponse.ok(diaryAnalysisService.analyze(subjectId, diaryId, userId));
     }
 
     @Operation(summary = "DIARY-03 일기 목록", description = "전체·이번 주·지난달 필터는 from/to로")
