@@ -139,4 +139,35 @@ class AuthApiTest {
         }
         login("authuser6", "abcd1234", "10.0.3.1").andExpect(status().isOk());
     }
+
+    @Test
+    void 동시에_실패해도_5건만_통과하고_나머지는_429다() throws Exception {
+        signup("authrace1", "abcd1234").andExpect(status().isCreated());
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(30);
+        java.util.List<java.util.concurrent.Future<Integer>> futures = new java.util.ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            futures.add(pool.submit(() ->
+                    login("authrace1", "wrongpass1", "10.0.4.1").andReturn().getResponse().getStatus()));
+        }
+        int unauthorized = 0;
+        int blocked = 0;
+        for (var f : futures) {
+            int code = f.get();
+            if (code == 401) {
+                unauthorized++;
+            } else if (code == 429) {
+                blocked++;
+            }
+        }
+        pool.shutdown();
+        assertThat(unauthorized).isEqualTo(5);
+        assertThat(blocked).isEqualTo(25);
+    }
+
+    @Test
+    void 아이디에_NUL_문자가_있어도_500이_아니라_401이다() throws Exception {
+        login("auth\\u0000user", "abcd1234", "10.0.5.1").andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error.code").value("AUTH_INVALID_CREDENTIALS"));
+        login("A".repeat(5000), "abcd1234", "10.0.5.2").andExpect(status().isUnauthorized());
+    }
 }

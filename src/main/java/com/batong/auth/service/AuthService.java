@@ -61,15 +61,16 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request, String ip) {
-        if (limiter.isBlocked(ip)) {
+        if (!limiter.tryAcquire(ip)) {
             throw new BusinessException(ErrorCode.AUTH_TOO_MANY_ATTEMPTS);
         }
-        User user = request.loginId() == null ? null : userRepository.findByLoginId(request.loginId()).orElse(null);
+        // 형식이 틀린 아이디(NUL 문자 등)는 DB에 묻지 않고 없는 계정으로 취급한다
+        User user = request.loginId() != null && LOGIN_ID.matcher(request.loginId()).matches()
+                ? userRepository.findByLoginId(request.loginId()).orElse(null) : null;
         // 아이디가 없어도 BCrypt를 한 번 돌려 응답 시간으로 존재 여부를 알 수 없게 한다
         String hash = user != null ? user.getPasswordHash() : dummyHash();
         boolean ok = request.password() != null && passwordEncoder.matches(request.password(), hash);
         if (user == null || !ok) {
-            limiter.recordFailure(ip);
             throw new BusinessException(ErrorCode.AUTH_INVALID_CREDENTIALS);
         }
         limiter.reset(ip);
