@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,20 +26,24 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @Operation(summary = "REPORT-01 일일 기록 날짜 목록", description = "화면 2.4. 승인 항목이 있는 날짜")
+    @Operation(summary = "REPORT-01 일일 기록 날짜 목록",
+        description = "화면 2.4. 승인 항목이 하나 이상 있는 일기. from·to를 생략하면 to=오늘(KST), from=to 포함 최근 7일. 응답의 from·to는 실제 적용한 구간")
     @RequireRole({SubjectRole.OWNER, SubjectRole.CO_MANAGER})
     @GetMapping("/daily-records")
     public ApiResponse<DailyRecordListResponse> getDailyRecords(
         @PathVariable Long subjectId,
+        @AuthenticationPrincipal Long userId,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        return ApiResponse.ok(reportService.getDailyRecords(subjectId, from, to));
+        return ApiResponse.ok(reportService.getDailyRecords(subjectId, userId, from, to));
     }
 
-    @Operation(summary = "REPORT-02 일일 기록", description = "화면 2.4. 승인 항목만")
+    @Operation(summary = "REPORT-02 일일 기록", description = "화면 2.4. 승인 항목만. 원문·공감 문장·근거 문장은 없다")
     @RequireRole({SubjectRole.OWNER, SubjectRole.CO_MANAGER})
     @GetMapping("/daily-records/{diaryId}")
-    public ApiResponse<DailyRecordResponse> getDailyRecord(@PathVariable Long subjectId, @PathVariable Long diaryId) {
-        return ApiResponse.ok(reportService.getDailyRecord(subjectId, diaryId));
+    public ApiResponse<DailyRecordResponse> getDailyRecord(@PathVariable Long subjectId,
+                                                           @PathVariable Long diaryId,
+                                                           @AuthenticationPrincipal Long userId) {
+        return ApiResponse.ok(reportService.getDailyRecord(subjectId, userId, diaryId));
     }
 }
