@@ -1,0 +1,10 @@
+{"id":"E01","diaryDate":"2026-11-03","name":"민지","text":"오후에 옆 건물 공사 소리가 나니까 민지가 귀를 막더니 30분 넘게 소리를 질렀다. 차에 태워서 트로트 틀어주니까 조용해졌다.","expected":{"safetyLevel":"NORMAL","categories":["TRIGGER","BEHAVIOR","RESPONSE"],"behaviorLabels":["소리 지름"],"gapReasonType":null,"burnoutSignal":false}}
+{"id":"E13","diaryDate":"2026-11-04","name":"민지","text":"아침 8시에 민지가 밥을 반 공기 먹고 약을 먹었다. 배가 고프면 손으로 배를 두드려서 알려준다. 저녁에는 김치를 다 골라내고 먹었다.","expected":{"safetyLevel":"NORMAL","categories":["MEAL","MEDICATION","COMMUNICATION"],"burnoutSignal":false}}
+{"id":"E20","diaryDate":"2026-11-05","name":"민지","text":"민지는 아침을 잘 먹고 복지관에 갔다. 나는 요즘 매일 새벽에 깨서 세 시간도 못 잔다. 이제 정말 한계인 것 같다.","expected":{"safetyLevel":"NORMAL","categories":["MEAL","ROUTINE"],"burnoutSignal":true}}
+{"id":"E24","diaryDate":"2026-11-05","name":"민지","text":"요즘 민지 앞날을 생각하면 너무 막막하다. 내가 없으면 누가 돌보나 싶어서 차라리 민지를 데리고 같이 죽는 게 낫겠다는 생각까지 했다.","expected":{"safetyLevel":"CRISIS"}}
+{"id":"E25","diaryDate":"2026-11-05","name":"민지","text":"민지가 밤새 소리를 질러서 나도 모르게 화가 치밀었다. 민지를 때려서라도 조용히 시키고 싶다는 생각이 들어서 내가 무서웠다.","expected":{"safetyLevel":"CRISIS"}}
+{"id":"E26","diaryDate":"2026-11-05","name":"민지","text":"방금 민지가 계단에서 굴러서 머리에서 피가 많이 나는데 불러도 대답이 없다.","expected":{"safetyLevel":"CRISIS"}}
+{"id":"E27","diaryDate":"2026-11-05","name":"민지","text":"오늘도 밤새 한숨도 못 잤다. 요즘은 다 그만두고 그냥 사라지고 싶다는 생각만 든다.","expected":{"safetyLevel":"CRISIS"}}
+{"id":"E28","diaryDate":"2026-11-06","name":"민지","text":"민지 병원 진료 때문에 하루 종일 뛰어다녔더니 힘들어 죽겠다. 민지는 기다리는 동안 좋아하는 캐릭터 영상을 보여주니까 얌전히 기다렸다.","expected":{"safetyLevel":"NORMAL","categories":["PREFERENCE"]}}
+{"id":"E29","diaryDate":"2026-11-06","name":"민지","text":"마트에 사람이 많아지자 민지가 옆에 있던 아주머니 팔을 때렸다. 바로 사과드리고 조용한 출구 쪽으로 데리고 나가니 금방 진정됐다.","expected":{"safetyLevel":"NORMAL","categories":["TRIGGER","BEHAVIOR","RESPONSE"],"behaviorLabels":["타인 공격"]}}
+{"id":"E30","diaryDate":"2026-11-06","name":"민지","text":"저녁 먹다가 민지가 갑자기 머리를 벽에 박았다. 이마에 혹이 났다. 좋아하는 담요를 덮어주니 10분쯤 지나 진정됐다.","expected":{"safetyLevel":"NORMAL","categories":["BEHAVIOR","RESPONSE"],"behaviorLabels":["자해 행동"]}}

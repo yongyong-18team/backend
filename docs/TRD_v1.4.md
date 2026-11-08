@@ -180,7 +180,7 @@ Android 앱 전환은 실서비스 단계 과제로 둔다. 그때도 서버 API
 | 테스트 | JUnit 5, Mockito, Testcontainers | `@MockitoBean` |
 | 빌드·배포 | Gradle 8.14 (Groovy), GitHub Actions, systemd | 로컬 DB는 `docker compose up -d db` |
 | 인프라 | AWS Lightsail (Ubuntu 24.04), Nginx, Let's Encrypt | 서버·DB·프록시를 한 대에. 12-1 |
-| LLM | Google Gemini Flash (AI Studio 무료 키). 이후 HyperCLOVA X 등 | 8-6 |
+| LLM | Google Gemini `gemini-3.5-flash-lite` (AI Studio 무료 키). 이후 HyperCLOVA X 등 | 8-6 |
 | STT | Groq `whisper-large-v3` (무료). 이후 CLOVA Speech 등 | 8-2. webm·mp4·m4a를 변환 없이 받음 |
 | 프론트 | React 모바일 웹, Vercel | 3-3 |
 
@@ -371,7 +371,20 @@ sequenceDiagram
 - 프롬프트는 `resources/prompts/{작업}_v{n}.txt`로 관리하고 ai_analysis.prompt_version에 기록한다.
 
 ### 8-6. LLM 공급자
-MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델 이름과 무료 한도, 구조화 출력(응답 스키마) 지원은 백엔드 B가 AI Studio에서 확인해 `LLM_MODEL`로 확정하고 이 절에 적는다. 평가셋 첫 10건에서 품질이 부족하면 Groq 호스팅 모델로 바꿔 비교한다.
+MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델은 `LLM_MODEL=gemini-3.5-flash-lite`로 정했다(2026-11-05 백엔드 B 확인).
+
+| 항목 | 내용 |
+|---|---|
+| 모델 | `gemini-3.5-flash-lite` (Stable). 버전이 고정된 이름을 쓰고 `-latest` 별칭은 쓰지 않는다(시연 중 모델이 바뀔 수 있음) |
+| 무료 한도 | 분당 15회, 분당 25만 토큰, 하루 500회. 키의 프로젝트 단위라 팀 전체가 나눠 쓴다. 개발·CI는 `AI_MODE=mock`, 실제 키는 평가셋·시연 리허설에만 쓴다 |
+| 구조화 출력 | 지원(JSON Schema). nullable·enum·maxItems는 지켜지고 maxLength는 무시되므로 길이 검증은 서버가 한다(AI 명세 2-3) |
+| 호출 | Interactions API `POST https://generativelanguage.googleapis.com/v1beta/interactions` |
+| 평가 | 평가셋 10건(위기 4, 혼동 3 포함) AI Studio 수동 실행: 위기 재현율 4/4, 혼동 3/3, 근거 문장 통과 100%, category 일치 100%. AI Studio에 temperature 설정이 없어 기본값으로 실행했다. 응답 시간은 아직 재지 않았다 |
+| temperature | 공식 문서는 Gemini 4와 3.6 이상이 temperature를 무시한다고 한다. 3.5-flash-lite는 AI Studio에 temperature 설정이 없고 문서에도 지원 여부가 없다. AI 명세 2-1의 temperature가 적용되는지는 서버 호출(#26)에서 확인한다 |
+| thinking | 기본으로 켜져 있고(minimal) 끌 수 없다. thinking 토큰이 max_output_tokens에 포함되므로, AI 명세 2-1의 1500 토큰에서 JSON이 잘리지 않는지 #26에서 확인한다 |
+
+- `gemini-3.6-flash`는 무료 한도가 하루 20회라 제외했다.
+- 평가셋 30건이나 응답 시간에서 기준(AI 명세 6-3)을 못 넘으면 Groq 호스팅 모델로 바꿔 비교한다.
 
 `LlmClient` 인터페이스 뒤에 구현체를 두고 `LLM_PROVIDER`로 선택한다. 선정 기준:
 - 구조화 JSON 출력 지원 (필수)
@@ -417,6 +430,7 @@ MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델 이름
 1. 입력: 단기·장기(careTerm, 생략 가능), 필요한 날짜, 지역(생략하면 대상자 등록 지역), 대상자 나이(birth_year에서 계산)
 2. 제도: support_program.care_term이 일치하거나 BOTH이고, target_conditions(나이 범위 등)를 만족하는 것. Java 규칙으로 처리, LLM 사용 안 함
 3. 시설: 고른 제도에 매핑된 시설 유형(program_facility_type)의 시설. 같은 구를 먼저, 다음 다른 구
+   - 시설이 0건이면 응답에 제도만 담는다. 제도도 없으면 빈 배열(에러 아님)
 4. 저장하지 않고 응답만 한다. 추천 이유는 MVP에서 템플릿 문장(AI-04는 P1)
 5. 모든 결과에 "실제 신청 자격과 이용 가능 여부는 해당 기관에 확인이 필요합니다" 표시(PRD 5.2)
 6. 5.0에서 바로 들어오면 careTerm 없이 지역만으로 검색한다
@@ -628,7 +642,7 @@ MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델 이름
 
 | # | 항목 | 담당 | 영향 |
 |---|---|---|---|
-| 1 | LLM 공급자: Gemini Flash로 결정. 모델 이름·한도·구조화 출력 확인과 평가셋 첫 10건 품질 확인이 남음 | 백엔드 B | infra.llm, 타임아웃 재조정 |
+| 1 | LLM 공급자: `gemini-3.5-flash-lite`로 결정(8-6). 응답 시간 측정, temperature 적용 여부, thinking 토큰 포함 시 출력 잘림 여부, 평가셋 30건 확인이 남음 | 백엔드 B | infra.llm, 타임아웃 재조정 |
 | 2 | STT 공급자: Groq Whisper로 결정(webm·mp4·m4a 지원 확인됨). 가상 발화 10개 인식률 확인이 남음 | 백엔드 B | infra.stt |
 | 3 | 도메인 확보 | 백엔드 A | HTTPS, 웹 마이크, CORS |
 | 4 | AI_MODE 런타임 전환(ADMIN-02) 구현 여부 | 백엔드 A | 시연 안정성 |

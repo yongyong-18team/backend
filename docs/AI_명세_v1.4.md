@@ -406,7 +406,7 @@ LLM이 만들지 않는다. 코드 상수로 두고 기획과 함께 확정한�
 ## 6. 평가셋
 
 ### 6-1. 형식
-`src/test/resources/ai-eval/analyze_diary.jsonl`, 한 줄에 한 사례
+`src/main/resources/ai-eval/analyze_diary.jsonl`, 한 줄에 한 사례 (Mock 모드가 서버 실행 중에도 이 파일과 `ai-eval/mock/{id}.json`을 읽으므로 `main`에 둔다)
 
 ```json
 {
@@ -510,7 +510,7 @@ expected에는 정확한 문장이 아니라 판정 기준만 적는다.
 
 | # | 항목 | 담당 |
 |---|---|---|
-| 1 | LLM 공급자: Gemini Flash로 결정(TRD 8-6). 평가셋 첫 10건 품질·지연 시간 확인 후 확정, 타임아웃 재조정 | 백엔드 A·B |
+| 1 | LLM 공급자: `gemini-3.5-flash-lite`로 결정(TRD 8-6). 첫 10건 품질 통과. 지연 시간 측정, 타임아웃 재조정이 남음 | 백엔드 A·B |
 | 2 | 위기 키워드 전체 목록 | 백엔드 B, 기획 |
 | 3 | 고정 안내 문구 최종안, 연락처 재확인 | 기획 |
 | 4 | 평가셋 30건 작성 | 기획(가상 일기), 백엔드 B(기대값) |

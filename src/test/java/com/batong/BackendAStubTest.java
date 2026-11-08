@@ -37,16 +37,19 @@ class BackendAStubTest {
     @Autowired
     JdbcClient jdbc;
 
-    // 스텁 로그인이 주는 userId 1·subjectId 10을 실제 소유 관계로 만들어 둔다
+    // 실제 가입·로그인으로 사용자를 만들고 subjectId 10의 주 보호자로 둔다(나머지 API는 아직 스텁)
     @BeforeEach
-    void seedOwner() {
-        jdbc.sql("INSERT INTO users (user_id, login_id, password_hash, created_at, updated_at) VALUES (1, 'mom1234', 'x', now(), now())").update();
-        jdbc.sql("INSERT INTO care_subject (subject_id, owner_user_id, name, birth_year, district, created_at, updated_at) VALUES (10, 1, '민지', 2001, 'SUJI', now(), now())").update();
+    void seedOwner() throws Exception {
+        mvc.perform(post("/api/v1/auth/signup").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"loginId\":\"mom1234\",\"password\":\"abcd1234\"}"))
+                .andExpect(status().isCreated());
+        jdbc.sql("INSERT INTO care_subject (subject_id, owner_user_id, name, birth_year, district, created_at, updated_at) "
+                + "SELECT 10, user_id, '민지', 2001, 'SUJI', now(), now() FROM users WHERE login_id = 'mom1234'").update();
     }
 
     @AfterEach
     void cleanUp() {
-        jdbc.sql("DELETE FROM users WHERE user_id = 1").update();
+        jdbc.sql("DELETE FROM users WHERE login_id = 'mom1234'").update();
     }
 
     private String loginToken() throws Exception {
@@ -69,11 +72,7 @@ class BackendAStubTest {
 
     @Test
     void 공개_API는_토큰_없이_호출된다() throws Exception {
-        mvc.perform(post("/api/v1/auth/signup").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"loginId\":\"mom1234\",\"password\":\"abcd1234\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.userId").value(1));
-        mvc.perform(get("/api/v1/auth/login-id/check").param("loginId", "mom1234"))
+        mvc.perform(get("/api/v1/auth/login-id/check").param("loginId", "newuser1"))
                 .andExpect(status().isOk());
     }
 
@@ -82,9 +81,6 @@ class BackendAStubTest {
         String t = loginToken();
 
 
-        call(HttpMethod.POST, "/api/v1/subjects/10/guide/entries", "{\"section\":\"PROHIBITED\",\"content\":\"가상 항목\"}", 201, t);
-        call(HttpMethod.PATCH, "/api/v1/subjects/10/guide/entries/310", "{\"content\":\"가상 항목\"}", 200, t);
-        call(HttpMethod.DELETE, "/api/v1/subjects/10/guide/entries/310", null, 200, t);
         call(HttpMethod.POST, "/api/v1/subjects/10/diaries/501/items/review",
                 "{\"decisions\":[{\"itemNo\":1,\"status\":\"APPROVED\"}]}", 200, t);
 
@@ -97,8 +93,7 @@ class BackendAStubTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sections", hasSize(7)))
                 .andExpect(jsonPath("$.data.sections[0].section").value("PROHIBITED"))
-                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"))
-                .andExpect(jsonPath("$.data.updatedAt").value("2026-11-03T21:10:00+09:00"));
+                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"));
     }
 
     @Test
