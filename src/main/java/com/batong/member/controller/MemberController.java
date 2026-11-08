@@ -36,8 +36,8 @@ public class MemberController {
 
     @Operation(summary = "MEMBER-01 계정 존재 확인 (표시명만)")
     @GetMapping("/users/lookup")
-    public ApiResponse<LookupResponse> lookup(@RequestParam String loginId) {
-        return ApiResponse.ok(memberService.lookup(loginId));
+    public ApiResponse<LookupResponse> lookup(@RequestParam String loginId, @AuthenticationPrincipal Long userId) {
+        return ApiResponse.ok(memberService.lookup(loginId, userId));
     }
 
     @Operation(summary = "INVITE-01 초대 발송")
