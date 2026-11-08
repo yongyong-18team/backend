@@ -37,3 +37,8 @@ app:
     base-url: ${SHARE_BASE_URL:http://localhost:5173}
   admin:
     api-key: ${ADMIN_API_KEY:}
+
+ai:
+  prompt:
+    # 사용할 프롬프트 버전. ai_analysis.prompt_version에 기록한다(AI 명세 2-5)
+    analyze-diary: v1
