@@ -42,6 +42,9 @@ public class GuideEntry {
     @Column(name = "source_type", nullable = false, length = 12)
     private SourceType sourceType;
 
+    @Column(name = "src_question_code", length = 5)
+    private String srcQuestionCode;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -56,6 +59,14 @@ public class GuideEntry {
         e.sourceType = SourceType.MANUAL;
         e.createdAt = Instant.now();
         e.updatedAt = e.createdAt;
+        return e;
+    }
+
+    /** 온보딩 Q1~Q5 답변 하나가 항목 하나가 된다(ONB-01). questionCode는 "Q1"~"Q5" */
+    public static GuideEntry onboarding(Long subjectId, GuideSection section, String content, String questionCode) {
+        GuideEntry e = manual(subjectId, section, content);
+        e.sourceType = SourceType.ONBOARDING;
+        e.srcQuestionCode = questionCode;
         return e;
     }
 
