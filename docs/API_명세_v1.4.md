@@ -19,7 +19,7 @@
 | 1.3 | 2026-11-03 | 플랫폼 React 모바일 웹 확정. STT-01 상시 사용(조건부 문구 삭제), 받는 녹음 형식에 Safari `audio/mp4` 추가, 웹 클라이언트 규약(토큰 저장, 401 처리, CORS, 수신자 페이지 경로) 추가 |
 | 1.4 | 2026-11-03 | 서버 구성 변경(Lightsail)에 맞춰 문서 버전만 맞춤. API 변경 없음 |
 | 1.4.1 | 2026-11-07 | REPORT-01·ADMIN-01 응답 예시 추가, RES-02 시설 0건 규칙, DIARY-02 일반 예시의 `itemCount`와 항목 수 일치 (#58) |
-
+| 1.4.2 | 2026-11-08 | ADMIN-01 응답을 적재 건수(`total`, `created`, `updated`)로 정정, CSV 오류 시 500 (#30) |
 ---
 
 ## 1. 공통 규약
@@ -408,7 +408,8 @@ relation: PARENT / OTHER
 ```
 - 승인(APPROVED) 항목이 하나 이상 있는 일기만 나온다.
 - `summary`는 승인 항목의 `content`를 이은 한 줄이다. 일기 원문, 공감 문장, 근거 문장은 쓰지 않는다. 공동 관리자에게는 원문 preview를 주지 않는다(HOME-01과 같은 규칙).
-- `from`·`to`를 생략했을 때의 기본 구간은 구현 PR에서 정해 여기에 적는다.
+- `from`·`to`를 생략하면 `to`는 오늘(KST), `from`은 `to`를 포함한 최근 7일(`to`−6일)이다. 7일보다 긴 기간은 `from`을 직접 보낸다. 응답의 `from`·`to`는 실제로 적용한 구간이다. `from`이 `to`보다 늦으면 `COMMON_VALIDATION` 400.
+- 목록은 `diaryDate` 내림차순(같은 날은 `diaryId` 내림차순)이다.
 
 ### REPORT-02 일일 기록
 ```json
@@ -595,6 +596,30 @@ Response 200: `{ "userId": 2, "displayName": "이철수" }`
 ```
 에러: `INVITE_USER_NOT_FOUND` 404, `INVITE_SELF` 400, `INVITE_ALREADY_MEMBER` 409, `INVITE_DUPLICATE_PENDING` 409
 
+### INVITE-02 보낸 초대 목록
+```
+GET /subjects/10/invitations?status=PENDING
+```
+```json
+{
+  "invitations": [
+    {
+      "invitationId": 70,
+      "inviteeLoginId": "dad5678",
+      "inviteeDisplayName": "이철수",
+      "status": "PENDING",
+      "createdAt": "2026-11-03T20:00:00+09:00",
+      "respondedAt": null
+    }
+  ]
+}
+```
+- `status`는 PENDING / ACCEPTED / REJECTED / CANCELED / REVOKED. 생략하면 전체이고 최신순이다.
+- `respondedAt`은 PENDING이면 null이다.
+- 취소(INVITE-03) 버튼은 `status`가 PENDING일 때만 보여준다.
+
+에러: `COMMON_VALIDATION` 400 (알 수 없는 `status` 값)
+
 ### INVITE-04 받은 초대
 ```json
 {
@@ -707,11 +732,12 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 ### ADMIN-01 공공데이터 적재·갱신
 `POST /admin/public-data/sync`, 헤더 `X-Admin-Key`
 ```json
-{ "source": "YONGIN_API", "upsertedCount": 252 }
+{ "total": 53, "created": 53, "updated": 0 }
 ```
-- `upsertedCount`는 이번 실행에서 추가하거나 갱신한 시설 수다. 위 숫자는 예시이고 실제 값이 아니다.
+- `total`은 이번 실행에서 읽은 시설 수, `created`는 새로 넣은 수, `updated`는 이미 있어서 갱신한 수다. 위 숫자는 예시다.
+- 적재 대상은 수기 정리한 시설 CSV(`YONGIN_API`·`MANUAL` 행)이고, `(source, external_id)`가 같으면 갱신한다.
+- CSV에 잘못된 행이 있으면 아무것도 저장하지 않고 `COMMON_INTERNAL_ERROR` 500이다.
 - 키가 없거나 틀리거나 서버 키가 비어 있으면 `COMMON_FORBIDDEN` 403이다.
-
 ---
 
 ## 4. 에러 코드
