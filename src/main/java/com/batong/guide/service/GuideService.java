@@ -14,8 +14,6 @@ import com.batong.guide.dto.GuideDtos.EntryCreateResponse;
 import com.batong.guide.dto.GuideDtos.EntryUpdateRequest;
 import com.batong.guide.dto.GuideDtos.EntryUpdateResponse;
 import com.batong.guide.dto.GuideDtos.GuideResponse;
-import com.batong.guide.dto.GuideDtos.ReviewRequest;
-import com.batong.guide.dto.GuideDtos.ReviewResponse;
 import com.batong.guide.dto.GuideDtos.Section;
 import com.batong.guide.repository.GuideEntryRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-/** GUIDE-01~04 구현. ITEM-01(review)은 #11 전까지 스텁 */
+/** GUIDE-01~04 */
 @Service
 @RequiredArgsConstructor
 public class GuideService {
@@ -89,11 +87,6 @@ public class GuideService {
     public void deleteEntry(Long subjectId, Long entryId, Long userId) {
         roles.require(subjectId, userId, SubjectRole.OWNER);
         entries.delete(find(subjectId, entryId));
-    }
-
-    // 스텁: ITEM-01은 #11
-    public ReviewResponse review(Long subjectId, Long diaryId, Long userId, ReviewRequest request) {
-        return new ReviewResponse(2, 1, 0, List.of(301L, 302L));
     }
 
     private GuideEntry find(Long subjectId, Long entryId) {

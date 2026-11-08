@@ -11,6 +11,7 @@ import com.batong.guide.dto.GuideDtos.GuideResponse;
 import com.batong.guide.dto.GuideDtos.ReviewRequest;
 import com.batong.guide.dto.GuideDtos.ReviewResponse;
 import com.batong.guide.service.GuideService;
+import com.batong.guide.service.ItemReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GuideController {
 
     private final GuideService guideService;
+    private final ItemReviewService itemReviewService;
 
     @Operation(summary = "GUIDE-01 설명서 전체")
     @RequireRole({SubjectRole.OWNER, SubjectRole.CO_MANAGER})
@@ -74,6 +76,6 @@ public class GuideController {
     public ApiResponse<ReviewResponse> review(@PathVariable Long subjectId, @PathVariable Long diaryId,
                                               @AuthenticationPrincipal Long userId,
                                               @RequestBody ReviewRequest request) {
-        return ApiResponse.ok(guideService.review(subjectId, diaryId, userId, request));
+        return ApiResponse.ok(itemReviewService.review(subjectId, diaryId, userId, request));
     }
 }

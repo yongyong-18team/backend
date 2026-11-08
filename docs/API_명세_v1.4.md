@@ -595,6 +595,30 @@ Response 200: `{ "userId": 2, "displayName": "이철수" }`
 ```
 에러: `INVITE_USER_NOT_FOUND` 404, `INVITE_SELF` 400, `INVITE_ALREADY_MEMBER` 409, `INVITE_DUPLICATE_PENDING` 409
 
+### INVITE-02 보낸 초대 목록
+```
+GET /subjects/10/invitations?status=PENDING
+```
+```json
+{
+  "invitations": [
+    {
+      "invitationId": 70,
+      "inviteeLoginId": "dad5678",
+      "inviteeDisplayName": "이철수",
+      "status": "PENDING",
+      "createdAt": "2026-11-03T20:00:00+09:00",
+      "respondedAt": null
+    }
+  ]
+}
+```
+- `status`는 PENDING / ACCEPTED / REJECTED / CANCELED / REVOKED. 생략하면 전체이고 최신순이다.
+- `respondedAt`은 PENDING이면 null이다.
+- 취소(INVITE-03) 버튼은 `status`가 PENDING일 때만 보여준다.
+
+에러: `COMMON_VALIDATION` 400 (알 수 없는 `status` 값)
+
 ### INVITE-04 받은 초대
 ```json
 {
