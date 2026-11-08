@@ -28,6 +28,12 @@ management:
 
 app:
   ai-mode: ${AI_MODE:mock}
+  # AI_MODE=live일 때만 쓴다(TRD 8-6, 12-5). 키·모델이 비어 있으면 기동 실패
+  llm:
+    provider: ${LLM_PROVIDER:gemini}
+    api-key: ${LLM_API_KEY:}
+    model: ${LLM_MODEL:}
+    timeout-ms: ${LLM_TIMEOUT_MS:15000}
   jwt:
     secret: ${JWT_SECRET:}
     access-ttl: ${JWT_ACCESS_TTL:7d}

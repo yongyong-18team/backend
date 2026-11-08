@@ -378,9 +378,9 @@ MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델은 `LL
 | 모델 | `gemini-3.5-flash-lite` (Stable). 버전이 고정된 이름을 쓰고 `-latest` 별칭은 쓰지 않는다(시연 중 모델이 바뀔 수 있음) |
 | 무료 한도 | 분당 15회, 분당 25만 토큰, 하루 500회. 키의 프로젝트 단위라 팀 전체가 나눠 쓴다. 개발·CI는 `AI_MODE=mock`, 실제 키는 평가셋·시연 리허설에만 쓴다 |
 | 구조화 출력 | 지원(JSON Schema). nullable·enum·maxItems는 지켜지고 maxLength는 무시되므로 길이 검증은 서버가 한다(AI 명세 2-3) |
-| 호출 | Interactions API `POST https://generativelanguage.googleapis.com/v1beta/interactions` |
+| 호출 | Interactions API `POST https://generativelanguage.googleapis.com/v1beta/interactions`. 헤더 `x-goog-api-key`, `store: false`(기본값은 대화를 공급자 쪽에 저장), 구조화 출력은 `response_format`(`prompts/{작업}_{버전}.schema.json`). 구현 `GeminiLlmClient` |
 | 평가 | 평가셋 10건(위기 4, 혼동 3 포함) AI Studio 수동 실행: 위기 재현율 4/4, 혼동 3/3, 근거 문장 통과 100%, category 일치 100%. AI Studio에 temperature 설정이 없어 기본값으로 실행했다. 응답 시간은 아직 재지 않았다 |
-| temperature | 공식 문서는 Gemini 4와 3.6 이상이 temperature를 무시한다고 한다. 3.5-flash-lite는 AI Studio에 temperature 설정이 없고 문서에도 지원 여부가 없다. AI 명세 2-1의 temperature가 적용되는지는 서버 호출(#26)에서 확인한다 |
+| temperature | Interactions API의 `generation_config`에 temperature 필드가 없어(문서상 thinking_level, max_output_tokens, seed 등만 있음) 보내지 않는다. AI 명세 2-1의 temperature는 이 공급자에서 적용되지 않는다 |
 | thinking | 기본으로 켜져 있고(minimal) 끌 수 없다. thinking 토큰이 max_output_tokens에 포함되므로, AI 명세 2-1의 1500 토큰에서 JSON이 잘리지 않는지 #26에서 확인한다 |
 
 - `gemini-3.6-flash`는 무료 한도가 하루 20회라 제외했다.
@@ -642,7 +642,7 @@ MVP는 **Google Gemini Flash**(AI Studio 무료 키)로 정했다. 모델은 `LL
 
 | # | 항목 | 담당 | 영향 |
 |---|---|---|---|
-| 1 | LLM 공급자: `gemini-3.5-flash-lite`로 결정(8-6). 응답 시간 측정, temperature 적용 여부, thinking 토큰 포함 시 출력 잘림 여부, 평가셋 30건 확인이 남음 | 백엔드 B | infra.llm, 타임아웃 재조정 |
+| 1 | LLM 공급자: `gemini-3.5-flash-lite`로 결정(8-6). temperature는 미지원으로 확인(8-6). 응답 시간 측정, thinking 토큰 포함 시 출력 잘림 여부, 평가셋 30건 확인이 남음 | 백엔드 B | infra.llm, 타임아웃 재조정 |
 | 2 | STT 공급자: Groq Whisper로 결정(webm·mp4·m4a 지원 확인됨). 가상 발화 10개 인식률 확인이 남음 | 백엔드 B | infra.stt |
 | 3 | 도메인 확보 | 백엔드 A | HTTPS, 웹 마이크, CORS |
 | 4 | AI_MODE 런타임 전환(ADMIN-02) 구현 여부 | 백엔드 A | 시연 안정성 |

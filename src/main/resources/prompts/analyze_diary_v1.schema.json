@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "safetyLevel": { "type": "string", "enum": ["NORMAL", "CRISIS"] },
+    "empathy": { "type": ["string", "null"] },
+    "items": {
+      "type": "array",
+      "maxItems": 15,
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": ["ROUTINE", "CONDITION", "MEAL", "MEDICATION", "COMMUNICATION", "BEHAVIOR", "TRIGGER", "PREFERENCE", "AVERSION", "RESPONSE"]
+          },
+          "label": {
+            "anyOf": [
+              { "type": "string", "enum": ["소리 지름", "자해 행동", "타인 공격", "물건 파손", "뛰쳐나감", "반복 행동", "수면 문제", "식사 거부", "기타 행동"] },
+              { "type": "null" }
+            ]
+          },
+          "content": { "type": "string" },
+          "timeSlot": {
+            "anyOf": [
+              { "type": "string", "enum": ["MORNING", "AFTERNOON", "EVENING", "NIGHT"] },
+              { "type": "null" }
+            ]
+          },
+          "durationMin": { "type": ["integer", "null"], "minimum": 1, "maximum": 600 },
+          "episodeNo": { "type": ["integer", "null"], "minimum": 1 },
+          "evidenceQuote": { "type": "string" }
+        },
+        "required": ["category", "label", "content", "timeSlot", "durationMin", "episodeNo", "evidenceQuote"]
+      }
+    },
+    "burnoutSignal": { "type": "boolean" }
+  },
+  "required": ["safetyLevel", "empathy", "items", "burnoutSignal"]
+}
