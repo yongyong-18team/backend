@@ -9,6 +9,8 @@ import com.batong.global.error.BusinessException;
 import com.batong.global.error.ErrorCode;
 import com.batong.share.domain.Share;
 import com.batong.share.repository.ShareRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.transaction.annotation.Transactional;
 import com.batong.global.enums.ShareStatus;
@@ -29,7 +31,16 @@ import com.batong.share.dto.ShareDtos.SharedSection;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.HexFormat;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -40,15 +51,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.batong.global.StubData.at;
-
-/** SHARE-01·02 구현. SHARE-03~05, PUB-01은 #13~#15 전까지 스텁 */
+/** SHARE-01~05, PUB-01 */
 @Service
 public class ShareService {
-
-    private static final SharedBasicInfo BASIC_INFO = new SharedBasicInfo("민지", 25, "어머니 010-0000-0000");
 
     private static final int MAX_LABEL = 30;
     private static final int VALID_DAYS = 7;
@@ -57,13 +65,15 @@ public class ShareService {
     private final SubjectRoleResolver roles;
     private final JdbcClient jdbc;
     private final ShareRepository shares;
+    private final ObjectMapper objectMapper;
 
     public ShareService(@Value("${app.share.base-url}") String shareBaseUrl, SubjectRoleResolver roles,
-                        JdbcClient jdbc, ShareRepository shares) {
+                        JdbcClient jdbc, ShareRepository shares, ObjectMapper objectMapper) {
         this.shareBaseUrl = shareBaseUrl;
         this.roles = roles;
         this.jdbc = jdbc;
         this.shares = shares;
+        this.objectMapper = objectMapper;
     }
 
     public SectionOptionsResponse getSectionOptions(Long subjectId, Long userId, DocumentType documentType,
@@ -189,23 +199,116 @@ public class ShareService {
         return s == null || s.isBlank() ? null : s;
     }
 
+    @Transactional
     public ApproveResponse approve(Long subjectId, Long shareId, Long userId) {
-        return new ApproveResponse(shareId, shareBaseUrl + "/s/stub-token-for-frontend", DocumentType.GUIDE,
-                at("2026-11-03T21:30:00+09:00"), at("2026-11-10T21:30:00+09:00"), "이 링크는 지금만 복사할 수 있어요.");
+        roles.require(subjectId, userId, SubjectRole.OWNER, SubjectRole.CO_MANAGER);
+        record Row(Long createdBy, DocumentType type) { }
+        Row row = jdbc.sql("SELECT created_by, document_type FROM share WHERE share_id = :i AND subject_id = :s")
+                .param("i", shareId).param("s", subjectId)
+                .query((rs, n) -> new Row(rs.getObject("created_by", Long.class),
+                        DocumentType.valueOf(rs.getString("document_type"))))
+                .optional().orElseThrow(() -> new BusinessException(ErrorCode.SHARE_NOT_FOUND));
+        if (!userId.equals(row.createdBy())) {
+            throw new BusinessException(ErrorCode.SHARE_FORBIDDEN);
+        }
+        byte[] raw = new byte[32];
+        new SecureRandom().nextBytes(raw);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(raw);
+        Instant now = Instant.now();
+        Instant expiresAt = now.plus(VALID_DAYS, ChronoUnit.DAYS);
+        // approved_at IS NULL 조건으로 동시 승인 중 하나만 갱신된다
+        int updated = jdbc.sql("""
+                UPDATE share SET token_hash = :h, approved_at = :a, expires_at = :e
+                WHERE share_id = :i AND approved_at IS NULL""")
+                .param("h", sha256Hex(token)).param("a", Timestamp.from(now)).param("e", Timestamp.from(expiresAt))
+                .param("i", shareId).update();
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.SHARE_ALREADY_APPROVED);
+        }
+        return new ApproveResponse(shareId, shareBaseUrl + "/s/" + token, row.type(), now, expiresAt,
+                "이 링크는 지금만 복사할 수 있어요.");
+    }
+
+    private static String sha256Hex(String s) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(s.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public ShareListResponse getShares(Long subjectId, Long userId) {
-        return new ShareListResponse(List.of(new ShareSummary(900L, DocumentType.GUIDE, "목요일 선생님", "김영희",
-                at("2026-11-03T21:30:00+09:00"), at("2026-11-10T21:30:00+09:00"), ShareStatus.ACTIVE, true)));
+        SubjectRole role = roles.require(subjectId, userId, SubjectRole.OWNER, SubjectRole.CO_MANAGER);
+        Instant now = Instant.now();
+        List<ShareSummary> list = jdbc.sql("""
+                SELECT s.share_id, s.document_type, s.recipient_label, s.created_by, u.display_name,
+                       s.approved_at, s.expires_at, s.revoked_at
+                FROM share s LEFT JOIN users u ON u.user_id = s.created_by
+                WHERE s.subject_id = :s AND s.approved_at IS NOT NULL
+                ORDER BY s.approved_at DESC, s.share_id DESC""")
+                .param("s", subjectId)
+                .query((rs, n) -> {
+                    Instant expiresAt = rs.getTimestamp("expires_at").toInstant();
+                    ShareStatus status = rs.getTimestamp("revoked_at") != null ? ShareStatus.REVOKED
+                            : !expiresAt.isAfter(now) ? ShareStatus.EXPIRED : ShareStatus.ACTIVE;
+                    Long createdBy = rs.getObject("created_by", Long.class);
+                    boolean revocable = status == ShareStatus.ACTIVE
+                            && (role == SubjectRole.OWNER || userId.equals(createdBy));
+                    return new ShareSummary(rs.getLong("share_id"), DocumentType.valueOf(rs.getString("document_type")),
+                            rs.getString("recipient_label"), rs.getString("display_name"),
+                            rs.getTimestamp("approved_at").toInstant(), expiresAt, status, revocable);
+                }).list();
+        return new ShareListResponse(list);
     }
 
+    @Transactional
     public RevokeResponse revoke(Long subjectId, Long shareId, Long userId) {
+        SubjectRole role = roles.require(subjectId, userId, SubjectRole.OWNER, SubjectRole.CO_MANAGER);
+        record Row(Long createdBy) { }
+        Row row = jdbc.sql("SELECT created_by FROM share WHERE share_id = :i AND subject_id = :s AND approved_at IS NOT NULL")
+                .param("i", shareId).param("s", subjectId)
+                .query((rs, n) -> new Row(rs.getObject("created_by", Long.class)))
+                .optional().orElseThrow(() -> new BusinessException(ErrorCode.SHARE_NOT_FOUND));
+        if (role != SubjectRole.OWNER && !userId.equals(row.createdBy())) {
+            throw new BusinessException(ErrorCode.SHARE_FORBIDDEN);
+        }
+        int updated = jdbc.sql("""
+                UPDATE share SET revoked_at = :now
+                WHERE share_id = :i AND revoked_at IS NULL AND expires_at > :now""")
+                .param("now", Timestamp.from(Instant.now())).param("i", shareId).update();
+        if (updated == 0) {
+            throw new BusinessException(ErrorCode.SHARE_ALREADY_INACTIVE);
+        }
         return new RevokeResponse(shareId, ShareStatus.REVOKED);
     }
 
+    private static final Pattern TOKEN = Pattern.compile("^[A-Za-z0-9_-]{43}$");
+
     public PublicShareResponse getPublicShare(String token) {
-        return new PublicShareResponse(DocumentType.GUIDE, at("2026-11-03T21:30:00+09:00"), at("2026-11-10T21:30:00+09:00"),
-                new PublicContent(BASIC_INFO, List.of(),
-                        List.of(new SharedSection("BEHAVIOR_RESPONSE", List.of("공사 소음에 불안해함")))));
+        if (token == null || !TOKEN.matcher(token).matches()) {
+            throw new BusinessException(ErrorCode.SHARE_NOT_FOUND);
+        }
+        record Row(DocumentType type, Instant approvedAt, Instant expiresAt, boolean revoked, PublicContent content) { }
+        Row row = jdbc.sql("SELECT document_type, approved_at, expires_at, revoked_at, snapshot_json FROM share WHERE token_hash = :h")
+                .param("h", sha256Hex(token))
+                .query((rs, n) -> new Row(DocumentType.valueOf(rs.getString("document_type")),
+                        rs.getTimestamp("approved_at").toInstant(), rs.getTimestamp("expires_at").toInstant(),
+                        rs.getTimestamp("revoked_at") != null, parseSnapshot(rs.getString("snapshot_json"))))
+                .optional().orElseThrow(() -> new BusinessException(ErrorCode.SHARE_NOT_FOUND));
+        if (row.revoked()) {
+            throw new BusinessException(ErrorCode.SHARE_REVOKED);
+        }
+        if (!row.expiresAt().isAfter(Instant.now())) {
+            throw new BusinessException(ErrorCode.SHARE_EXPIRED);
+        }
+        return new PublicShareResponse(row.type(), row.approvedAt(), row.expiresAt(), row.content());
+    }
+
+    private PublicContent parseSnapshot(String json) {
+        try {
+            return objectMapper.readValue(json, PublicContent.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("share snapshot 파싱 실패", e);
+        }
     }
 }
