@@ -26,4 +26,26 @@ public final class ReportDtos {
 
     public record RecordItem(String content, TimeSlot timeSlot, Integer durationMin) {
     }
+
+    // REPORT-03 (명세 예시). 일기 원문·근거 문장·공감 문장은 없다
+    public record WeeklyReportResponse(LocalDate periodStart, LocalDate periodEnd,
+                                       int recordCount, int behaviorCount,
+                                       List<String> summaryLines,
+                                       List<DailyTrend> dailyTrend,
+                                       List<KeyChange> keyChanges,
+                                       List<RepeatedBehavior> repeatedBehaviors,
+                                       List<TimePatternCount> timePattern) {
+    }
+
+    public record DailyTrend(LocalDate date, int recordCount, int behaviorCount) {
+    }
+
+    public record KeyChange(Long diaryId, LocalDate diaryDate, GuideSection section, String content) {
+    }
+
+    public record RepeatedBehavior(String label, int count) {
+    }
+
+    public record TimePatternCount(TimeSlot timeSlot, int count) {
+    }
 }
