@@ -408,7 +408,8 @@ relation: PARENT / OTHER
 ```
 - 승인(APPROVED) 항목이 하나 이상 있는 일기만 나온다.
 - `summary`는 승인 항목의 `content`를 이은 한 줄이다. 일기 원문, 공감 문장, 근거 문장은 쓰지 않는다. 공동 관리자에게는 원문 preview를 주지 않는다(HOME-01과 같은 규칙).
-- `from`·`to`를 생략했을 때의 기본 구간은 구현 PR에서 정해 여기에 적는다.
+- `from`·`to`를 생략하면 `to`는 오늘(KST), `from`은 `to`를 포함한 최근 7일(`to`−6일)이다. 7일보다 긴 기간은 `from`을 직접 보낸다. 응답의 `from`·`to`는 실제로 적용한 구간이다. `from`이 `to`보다 늦으면 `COMMON_VALIDATION` 400.
+- 목록은 `diaryDate` 내림차순(같은 날은 `diaryId` 내림차순)이다.
 
 ### REPORT-02 일일 기록
 ```json
