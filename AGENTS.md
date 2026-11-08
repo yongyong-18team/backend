@@ -1,4 +1,4 @@
-# 돌봄 바통 백엔드
+# 돌봄바통 백엔드
 
 Spring Boot 3.5.16 / Java 17 / PostgreSQL 16 / Gradle(Groovy). 해커톤 MVP, 가상 데이터만 사용.
 
