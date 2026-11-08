@@ -19,7 +19,7 @@
 | 1.3 | 2026-11-03 | 플랫폼 React 모바일 웹 확정. STT-01 상시 사용(조건부 문구 삭제), 받는 녹음 형식에 Safari `audio/mp4` 추가, 웹 클라이언트 규약(토큰 저장, 401 처리, CORS, 수신자 페이지 경로) 추가 |
 | 1.4 | 2026-11-03 | 서버 구성 변경(Lightsail)에 맞춰 문서 버전만 맞춤. API 변경 없음 |
 | 1.4.1 | 2026-11-07 | REPORT-01·ADMIN-01 응답 예시 추가, RES-02 시설 0건 규칙, DIARY-02 일반 예시의 `itemCount`와 항목 수 일치 (#58) |
-
+| 1.4.2 | 2026-11-08 | ADMIN-01 응답을 적재 건수(`total`, `created`, `updated`)로 정정, CSV 오류 시 500 (#30) |
 ---
 
 ## 1. 공통 규약
@@ -731,11 +731,12 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 ### ADMIN-01 공공데이터 적재·갱신
 `POST /admin/public-data/sync`, 헤더 `X-Admin-Key`
 ```json
-{ "source": "YONGIN_API", "upsertedCount": 252 }
+{ "total": 53, "created": 53, "updated": 0 }
 ```
-- `upsertedCount`는 이번 실행에서 추가하거나 갱신한 시설 수다. 위 숫자는 예시이고 실제 값이 아니다.
+- `total`은 이번 실행에서 읽은 시설 수, `created`는 새로 넣은 수, `updated`는 이미 있어서 갱신한 수다. 위 숫자는 예시다.
+- 적재 대상은 수기 정리한 시설 CSV(`YONGIN_API`·`MANUAL` 행)이고, `(source, external_id)`가 같으면 갱신한다.
+- CSV에 잘못된 행이 있으면 아무것도 저장하지 않고 `COMMON_INTERNAL_ERROR` 500이다.
 - 키가 없거나 틀리거나 서버 키가 비어 있으면 `COMMON_FORBIDDEN` 403이다.
-
 ---
 
 ## 4. 에러 코드
