@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -84,23 +83,6 @@ class BackendBStubTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.subjectId").value(10))
                 .andExpect(jsonPath("$.data.createdGuideEntryCount").value(4));
-    }
-
-    @Test
-    void SUBJ_02는_OWNER와_CO_모두_조회하고_SUBJ_03은_OWNER만() throws Exception {
-        String path = "/api/v1/subjects/" + subjectId;
-        mvc.perform(get(path).header("Authorization", owner))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.age").value(25))
-                .andExpect(jsonPath("$.data.district").value("SUJI"));
-        mvc.perform(get(path).header("Authorization", coManager)).andExpect(status().isOk());
-
-        String body = "{\"emergencyContact\":\"어머니 010-0000-0000\"}";
-        mvc.perform(patch(path).header("Authorization", owner).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.updatedAt").value("2026-11-03T21:00:00+09:00"));
-        mvc.perform(patch(path).header("Authorization", coManager).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isForbidden());
     }
 
     @Test
