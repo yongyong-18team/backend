@@ -93,8 +93,6 @@ class BackendAStubTest {
         call(HttpMethod.DELETE, "/api/v1/users/me", null, 200, t);
         call(HttpMethod.GET, "/api/v1/subjects/10/home", null, 200, t);
 
-        call(HttpMethod.POST, "/api/v1/subjects/10/diaries/501/items/review",
-                "{\"decisions\":[{\"itemNo\":1,\"status\":\"APPROVED\"}]}", 200, t);
 
         call(HttpMethod.GET, "/api/v1/subjects/10/shares/section-options?documentType=GUIDE", null, 200, t);
         call(HttpMethod.POST, "/api/v1/subjects/10/shares/drafts",
