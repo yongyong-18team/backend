@@ -13,6 +13,8 @@ import com.batong.member.dto.MemberDtos.Owner;
 import com.batong.member.dto.MemberDtos.ReceivedInvitation;
 import com.batong.member.dto.MemberDtos.ReceivedInvitationsResponse;
 import com.batong.member.dto.MemberDtos.RemoveResponse;
+import com.batong.member.dto.MemberDtos.SentInvitation;
+import com.batong.member.dto.MemberDtos.SentInvitationsResponse;
 import com.batong.global.auth.SubjectRoleResolver;
 import com.batong.global.error.BusinessException;
 import com.batong.global.error.ErrorCode;
@@ -96,6 +98,22 @@ public class MemberService {
             throw new BusinessException(ErrorCode.INVITE_FORBIDDEN);
         }
         respond(invitationId, InvitationStatus.CANCELED);
+    }
+
+    /** status가 없으면 전체. 최신순 */
+    public SentInvitationsResponse getSentInvitations(Long subjectId, Long userId, InvitationStatus status) {
+        roles.require(subjectId, userId, SubjectRole.OWNER);
+        return new SentInvitationsResponse(jdbc.sql("""
+                SELECT i.invitation_id, u.login_id, u.display_name, i.status, i.created_at, i.responded_at
+                FROM invitation i JOIN users u ON u.user_id = i.invitee_user_id
+                WHERE i.subject_id = :s AND (CAST(:st AS text) IS NULL OR i.status = :st)
+                ORDER BY i.created_at DESC, i.invitation_id DESC""")
+                .param("s", subjectId).param("st", status == null ? null : status.name())
+                .query((rs, n) -> new SentInvitation(rs.getLong("invitation_id"), rs.getString("login_id"),
+                        rs.getString("display_name"), InvitationStatus.valueOf(rs.getString("status")),
+                        rs.getTimestamp("created_at").toInstant(),
+                        rs.getTimestamp("responded_at") == null ? null : rs.getTimestamp("responded_at").toInstant()))
+                .list());
     }
 
     public ReceivedInvitationsResponse getReceivedInvitations(Long userId) {

@@ -10,6 +10,8 @@ import com.batong.member.dto.MemberDtos.LookupResponse;
 import com.batong.member.dto.MemberDtos.MembersResponse;
 import com.batong.member.dto.MemberDtos.ReceivedInvitationsResponse;
 import com.batong.member.dto.MemberDtos.RemoveResponse;
+import com.batong.member.dto.MemberDtos.SentInvitationsResponse;
+import com.batong.global.enums.InvitationStatus;
 import com.batong.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +49,15 @@ public class MemberController {
     public ApiResponse<InviteResponse> invite(@PathVariable Long subjectId, @AuthenticationPrincipal Long userId,
                                               @RequestBody InviteRequest request) {
         return ApiResponse.ok(memberService.invite(subjectId, userId, request));
+    }
+
+    @Operation(summary = "INVITE-02 보낸 초대 목록", description = "status를 생략하면 전체. 명세에 응답 형식이 없어 INVITE-04와 같은 모양으로 맞췄다.")
+    @RequireRole(SubjectRole.OWNER)
+    @GetMapping("/subjects/{subjectId}/invitations")
+    public ApiResponse<SentInvitationsResponse> getSentInvitations(@PathVariable Long subjectId,
+                                                                   @RequestParam(required = false) InvitationStatus status,
+                                                                   @AuthenticationPrincipal Long userId) {
+        return ApiResponse.ok(memberService.getSentInvitations(subjectId, userId, status));
     }
 
     @Operation(summary = "INVITE-03 대기 중 초대 취소")

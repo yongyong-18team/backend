@@ -317,4 +317,26 @@ class MemberApiTest {
                 .param("s", subjectId).param("u", createdBy).param("h", hash.substring(0, 64))
                 .param("ago", ago).param("exp", exp).param("rev", revoked).query(Long.class).single();
     }
+
+    // INVITE-02
+
+    @Test
+    void 보낸_초대_목록은_OWNER만_보고_status로_거른다() throws Exception {
+        long cancelled = inviteOk("memdad");
+        mvc.perform(as(post("/api/v1/subjects/" + subjectId + "/invitations/" + cancelled + "/cancel"), owner)).andExpect(status().isOk());
+        long pending = inviteOk("memmom");
+        String url = "/api/v1/subjects/" + subjectId + "/invitations";
+        mvc.perform(as(get(url), owner)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.invitations.length()").value(2))
+                .andExpect(jsonPath("$.data.invitations[0].invitationId").value(pending))
+                .andExpect(jsonPath("$.data.invitations[0].inviteeLoginId").value("memmom"))
+                .andExpect(jsonPath("$.data.invitations[0].respondedAt").doesNotExist())
+                .andExpect(jsonPath("$.data.invitations[1].status").value("CANCELED"));
+        mvc.perform(as(get(url).param("status", "PENDING"), owner))
+                .andExpect(jsonPath("$.data.invitations.length()").value(1))
+                .andExpect(jsonPath("$.data.invitations[0].status").value("PENDING"));
+        mvc.perform(as(get(url).param("status", "NOPE"), owner)).andExpect(status().isBadRequest());
+        mvc.perform(as(get(url), stranger)).andExpect(status().isForbidden());
+        mvc.perform(get(url)).andExpect(status().isUnauthorized());
+    }
 }
