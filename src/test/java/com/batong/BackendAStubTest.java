@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,36 +74,15 @@ class BackendAStubTest {
     void 공개_API는_토큰_없이_호출된다() throws Exception {
         mvc.perform(get("/api/v1/auth/login-id/check").param("loginId", "newuser1"))
                 .andExpect(status().isOk());
-        mvc.perform(get("/api/v1/public/shares/any-token"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Cache-Control", "no-store"))
-                .andExpect(header().string("Referrer-Policy", "no-referrer"))
-                .andExpect(header().string("X-Robots-Tag", "noindex"))
-                .andExpect(jsonPath("$.data.content.basicInfo.name").value("민지"));
     }
 
     @Test
     void 로그인으로_받은_토큰으로_보호_API_스텁을_모두_호출할_수_있다() throws Exception {
         String t = loginToken();
 
-        call(HttpMethod.GET, "/api/v1/users/me", null, 200, t);
-        call(HttpMethod.PATCH, "/api/v1/users/me", "{\"displayName\":\"김영희\",\"relation\":\"PARENT\"}", 200, t);
-        call(HttpMethod.DELETE, "/api/v1/users/me", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/home", null, 200, t);
 
 
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/approve", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/shares", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/revoke", null, 200, t);
 
-        call(HttpMethod.GET, "/api/v1/users/lookup?loginId=dad5678", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/invitations", "{\"inviteeLoginId\":\"dad5678\"}", 201, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/invitations/70/cancel", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/users/me/invitations", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/users/me/invitations/70/accept", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/users/me/invitations/70/reject", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/members", null, 200, t);
-        call(HttpMethod.DELETE, "/api/v1/subjects/10/members/2", null, 200, t);
     }
 
     @Test

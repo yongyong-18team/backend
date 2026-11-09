@@ -70,7 +70,7 @@ git push -u origin main
 
 ## 4. 이슈와 보드
 
-1. 조직의 Projects에서 보드를 하나 만든다. 이름: `돌봄 바통`
+1. 조직의 Projects에서 보드를 하나 만든다. 이름: `돌봄바통`
    - 컬럼: Todo / In Progress / In Review / Done
    - Workflows에서 "Item closed → Done", "Pull request merged → Done"이 켜져 있는지 본다
 2. 백엔드 이슈를 한 번에 만든다. 한 번만 실행한다(다시 돌리면 중복 생성).
@@ -78,7 +78,7 @@ git push -u origin main
 ```bash
 gh auth login
 gh auth refresh -s project
-./scripts/create-issues.sh batong-team/batong-backend "돌봄 바통"
+./scripts/create-issues.sh batong-team/batong-backend "돌봄바통"
 ```
 
 백엔드 이슈 37개와 라벨이 만들어진다. 프론트가 원하면 앞에 `FRONTEND_REPO=batong-team/batong-frontend`를 붙여 화면별 이슈 17개도 만들 수 있다.

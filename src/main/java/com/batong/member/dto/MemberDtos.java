@@ -34,6 +34,11 @@ public final class MemberDtos {
     }
 
     /** CO가 호출하면 loginId는 본인 것만 내려준다 */
+    public record SentInvitation(Long invitationId, String inviteeLoginId, String inviteeDisplayName,
+                                 InvitationStatus status, Instant createdAt, Instant respondedAt) { }
+
+    public record SentInvitationsResponse(List<SentInvitation> invitations) { }
+
     public record MembersResponse(Owner owner, List<CoManager> coManagers) {
     }
 
