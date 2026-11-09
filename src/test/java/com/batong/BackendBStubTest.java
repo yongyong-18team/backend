@@ -14,7 +14,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -108,22 +107,8 @@ class BackendBStubTest {
     }
 
     @Test
-    void DIARY_03_04_05는_목록_상세_삭제() throws Exception {
-        mvc.perform(get(diaries()).header("Authorization", owner).param("size", "20"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].reviewStatus").value("APPROVED"))
-                .andExpect(jsonPath("$.data.size").value(20));
-        mvc.perform(get(diaries() + "/501").header("Authorization", owner))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.inputType").value("VOICE"))
-                .andExpect(jsonPath("$.data.items[0].edited").value(false));
-        mvc.perform(delete(diaries() + "/501").header("Authorization", owner))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
-    }
-
-    @Test
     void 일기_API는_공동_관리자에게_403이다() throws Exception {
+        // DIARY-03~05는 실제 구현으로 바뀌어 DiaryQueryApiTest가 검증한다
         mvc.perform(get(diaries()).header("Authorization", coManager))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error.code").value("COMMON_FORBIDDEN"));
