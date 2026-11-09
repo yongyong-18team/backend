@@ -236,4 +236,17 @@ class WeeklyReportApiTest {
         }
         mvc.perform(get(weekly(subjectId))).andExpect(status().isUnauthorized());
     }
+    @Test
+    void 기록이_3건_이상이면_실제_프롬프트를_읽어_요약을_호출하고_mock이라_빈_배열을_준다() throws Exception {
+        for (int day = 1; day <= 3; day++) {
+            long diaryId = diary(subjectId, LocalDate.of(2026, 11, day));
+            item(diaryId, 1, "BEHAVIOR", "소리 지름", "소리를 지름", "AFTERNOON", "APPROVED");
+        }
+
+        mvc.perform(get(weekly(subjectId)).param("endDate", "2026-11-03").header("Authorization", owner))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.recordCount").value(3))
+            .andExpect(jsonPath("$.data.behaviorCount").value(3))
+            .andExpect(jsonPath("$.data.summaryLines", hasSize(0)));
+    }
 }
