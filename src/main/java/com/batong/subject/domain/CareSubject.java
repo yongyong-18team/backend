@@ -66,6 +66,31 @@ public class CareSubject {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    /**
+     * ONB-01. 이름은 앞뒤 공백을 지운 뒤 검증한다(LLM 마스킹이 저장된 이름을 그대로 찾는다).
+     * 출생 연도가 없으면 SUBJECT_INVALID_BIRTH_YEAR, 지역이 없으면 COMMON_VALIDATION. dong은 비어 있으면 null
+     */
+    public static CareSubject create(Long ownerUserId, String name, Integer birthYear, District district, String dong) {
+        String stripped = name == null ? "" : name.strip();
+        validateName(stripped);
+        if (birthYear == null) {
+            throw new BusinessException(ErrorCode.SUBJECT_INVALID_BIRTH_YEAR);
+        }
+        validateBirthYear(birthYear);
+        if (district == null) {
+            throw new BusinessException(ErrorCode.COMMON_VALIDATION);
+        }
+        CareSubject s = new CareSubject();
+        s.ownerUserId = ownerUserId;
+        s.name = stripped;
+        s.birthYear = birthYear.shortValue();
+        s.district = district;
+        s.dong = dong == null ? null : blankToNull(dong, DONG_MAX);
+        s.createdAt = Instant.now().truncatedTo(ChronoUnit.MICROS);
+        s.updatedAt = s.createdAt;
+        return s;
+    }
+
     /** 올해(KST) - 출생 연도 */
     public int age() {
         return currentYear() - birthYear;
@@ -133,7 +158,8 @@ public class CareSubject {
             return null;
         }
         requireStorable(value);
-        if (value.length() > maxLength) {
+        // 이름과 같이 글자 수(코드 포인트)로 센다. DB VARCHAR(n)도 문자 수 기준이다
+        if (value.codePointCount(0, value.length()) > maxLength) {
             throw new BusinessException(ErrorCode.COMMON_VALIDATION);
         }
         return value;
