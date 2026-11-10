@@ -25,4 +25,15 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             + "where d.id = :diaryId and d.subjectId = :subjectId and d.analysisStatus <> :processing")
     int startAnalysis(@Param("diaryId") Long diaryId, @Param("subjectId") Long subjectId,
                       @Param("processing") AnalysisStatus processing, @Param("now") Instant now);
+
+    /**
+     * 분석 중이 아닐 때만 지운다(DIARY-05). 분석 결과·항목은 DB CASCADE, 설명서 출처·공유·소진 신호는 SET NULL(ERD 4장).
+     * startAnalysis와 같은 행을 다투므로 분석 시작과 동시에 와도 둘 중 하나만 된다.
+     *
+     * @return 지운 행 수. 0이면 없는 일기이거나 분석 중
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("delete from Diary d where d.id = :diaryId and d.subjectId = :subjectId and d.analysisStatus <> :processing")
+    int deleteUnlessAnalyzing(@Param("diaryId") Long diaryId, @Param("subjectId") Long subjectId,
+                              @Param("processing") AnalysisStatus processing);
 }
