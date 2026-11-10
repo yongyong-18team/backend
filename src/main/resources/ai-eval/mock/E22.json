@@ -1,0 +1,16 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "쉬는 날에도 밀린 일로 바빴던 일요일이었네요.",
+  "items": [
+    {
+      "category": "ROUTINE",
+      "label": null,
+      "content": "저녁에 혼자 그림책을 오래 봄",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "저녁에 혼자 그림책을 오래 봤다"
+    }
+  ],
+  "burnoutSignal": true
+}

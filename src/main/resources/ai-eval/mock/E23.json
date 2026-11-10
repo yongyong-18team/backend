@@ -1,0 +1,16 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "노래를 함께 들어도 피로가 가시지 않은 하루였네요.",
+  "items": [
+    {
+      "category": "PREFERENCE",
+      "label": null,
+      "content": "좋아하는 트로트 노래를 틀어 달라고 함",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "좋아하는 트로트 노래를 틀어 달라고 해서"
+    }
+  ],
+  "burnoutSignal": true
+}

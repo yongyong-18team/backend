@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "산책을 못 나가 길게 느껴진 오후였겠어요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "비가 와서 산책을 못 나감",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "오후에 갑자기 비가 와서 산책을 못 나갔다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "기타 행동",
+      "content": "방문을 여러 번 세게 침",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "방문을 여러 번 세게 쳤다"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "창가에 같이 앉아 있으니 한참 뒤 멈춤",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "같이 창가에 앉아 있었는데 한참 지나서야 멈췄다"
+    }
+  ],
+  "burnoutSignal": false
+}

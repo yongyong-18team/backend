@@ -1,24 +1,15 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "새벽마다 잠을 설치며 보낸 날들이 길게 느껴지셨겠어요.",
+  "empathy": "잠을 설친 데다 세탁기까지 말썽인 하루였네요.",
   "items": [
-    {
-      "category": "MEAL",
-      "label": null,
-      "content": "아침을 잘 먹음",
-      "timeSlot": "MORNING",
-      "durationMin": null,
-      "episodeNo": null,
-      "evidenceQuote": "대상자는 아침을 잘 먹고"
-    },
     {
       "category": "ROUTINE",
       "label": null,
-      "content": "복지관에 다님",
-      "timeSlot": null,
+      "content": "오후에 장난감 상자를 정리하며 잘 놂",
+      "timeSlot": "AFTERNOON",
       "durationMin": null,
       "episodeNo": null,
-      "evidenceQuote": "복지관에 갔다"
+      "evidenceQuote": "오후에 장난감 상자를 정리하며 잘 놀았다"
     }
   ],
   "burnoutSignal": true

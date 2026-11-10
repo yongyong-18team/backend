@@ -19,8 +19,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AnalysisResponseParserTest {
 
+    /** 파서 규칙 검증용 고정 문장(평가셋 30건 이전의 E01). 평가셋이 바뀌어도 이 테스트들은 그대로 둔다 */
     private static final String MASKED_E01 =
             "오후에 옆 건물 공사 소리가 나니까 대상자가 귀를 막더니 30분 넘게 소리를 질렀다. 차에 태워서 트로트 틀어주니까 조용해졌다.";
+    /** 지금 평가셋 E01을 마스킹한 문장 */
+    private static final String MASKED_EVAL_E01 =
+            "출근길에 버스가 평소보다 늦게 왔다. 대상자가 정류장에서 계속 귀를 막고 소리를 질렀다. 버스가 오고 자리에 앉으니까 조금 조용해졌다.";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final AnalysisResponseParser parser = new AnalysisResponseParser(objectMapper);
@@ -47,14 +51,15 @@ class AnalysisResponseParserTest {
         String json = new String(new DefaultResourceLoader().getResource("classpath:ai-eval/mock/E01.json")
                 .getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
-        ParsedAnalysis result = parser.parse(json, MASKED_E01);
+        ParsedAnalysis result = parser.parse(json, MASKED_EVAL_E01);
 
         assertThat(result.safetyLevel()).isEqualTo(SafetyLevel.NORMAL);
-        assertThat(result.empathy()).isEqualTo("공사 소리 때문에 오후 내내 긴장하셨겠어요.");
+        assertThat(result.empathy()).isEqualTo("출근길 정류장에서 마음 졸이는 아침이었겠어요.");
         assertThat(result.items()).extracting(ParsedItem::category)
                 .containsExactly(ItemCategory.TRIGGER, ItemCategory.BEHAVIOR, ItemCategory.RESPONSE);
         assertThat(result.items().get(1).label()).isEqualTo("소리 지름");
-        assertThat(result.items().get(1).durationMin()).isEqualTo(30);
+        // 새 E01은 지속 시간이 적혀 있지 않다
+        assertThat(result.items().get(1).durationMin()).isNull();
         assertThat(result.droppedItemCount()).isZero();
     }
 

@@ -30,6 +30,6 @@ class SttAudioFormatTest {
     @Test
     void Mock은_평가셋_E01_문장을_돌려준다() {
         assertThat(new MockSttClient().transcribe(new byte[0], "audio/webm"))
-                .startsWith("오후에 옆 건물 공사 소리가");
+                .startsWith("출근길에 버스가 평소보다 늦게 왔다");
     }
 }

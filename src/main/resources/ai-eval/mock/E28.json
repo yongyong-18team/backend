@@ -1,15 +1,15 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "병원 진료로 하루 종일 바쁘게 움직이셨네요.",
+  "empathy": "바쁜 회사 일을 마치고 돌아온 하루였네요.",
   "items": [
     {
-      "category": "PREFERENCE",
+      "category": "ROUTINE",
       "label": null,
-      "content": "기다릴 때 좋아하는 캐릭터 영상을 보여주면 얌전히 기다림",
-      "timeSlot": null,
+      "content": "저녁에 평소처럼 그림책을 읽음",
+      "timeSlot": "EVENING",
       "durationMin": null,
       "episodeNo": null,
-      "evidenceQuote": "좋아하는 캐릭터 영상을 보여주니까 얌전히 기다렸다"
+      "evidenceQuote": "대상자는 저녁에 평소처럼 그림책을 읽었다"
     }
   ],
   "burnoutSignal": false

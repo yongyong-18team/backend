@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "갑자기 뛰어나가서 많이 놀라셨겠어요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "산책 준비로 신발을 찾는 중이었음",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "같이 산책 나가려고 신발을 찾고 있었다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "뛰쳐나감",
+      "content": "먼저 현관문을 열고 밖으로 뛰어나감",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "현관문을 열고 밖으로 뛰어나가서"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "산책 순서를 그림으로 보여주니 다시 들어옴",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "산책 순서를 그림으로 보여주니 다시 들어왔다"
+    }
+  ],
+  "burnoutSignal": false
+}

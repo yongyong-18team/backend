@@ -1,0 +1,25 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "유난히 졸려 보인 하루였네요.",
+  "items": [
+    {
+      "category": "CONDITION",
+      "label": null,
+      "content": "오전에 두 시간 넘게 낮잠을 잠",
+      "timeSlot": "MORNING",
+      "durationMin": 120,
+      "episodeNo": null,
+      "evidenceQuote": "오전에는 대상자가 두 시간 넘게 낮잠을 잤다"
+    },
+    {
+      "category": "CONDITION",
+      "label": null,
+      "content": "오후에도 하품을 많이 하고 소파에 오래 누워 있음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "오후에도 하품을 많이 하고 소파에 오래 누워 있었다"
+    }
+  ],
+  "burnoutSignal": false
+}

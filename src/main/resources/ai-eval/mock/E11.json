@@ -1,0 +1,43 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "작은 불편함까지 살핀 아침이었네요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "새로 산 옷을 입음",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "아침에 새로 산 옷을 입혔더니"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "기타 행동",
+      "content": "옷 목 부분을 자꾸 잡아당김",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "목 부분을 자꾸 잡아당겼다"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "태그 없는 옷으로 바꿔주니 입음",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "태그 없는 옷으로 바꿔줬더니 입었다"
+    },
+    {
+      "category": "AVERSION",
+      "label": null,
+      "content": "옷 안쪽 태그가 닿는 것을 싫어하는 것 같음",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "옷 안쪽 태그가 닿는 게 싫은 것 같아서"
+    }
+  ],
+  "burnoutSignal": false
+}
