@@ -9,6 +9,7 @@ import com.batong.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,9 +43,9 @@ public class AuthController {
         return ApiResponse.ok(null);
     }
 
-    @Operation(summary = "AUTH-03 로그인", description = "스텁 단계: 아무 값이나 넣으면 userId 1 토큰을 준다")
+    @Operation(summary = "AUTH-03 로그인", description = "5회 실패 시 해당 IP 1분 제한(AUTH_TOO_MANY_ATTEMPTS)")
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request) {
-        return ApiResponse.ok(authService.login(request));
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest request, HttpServletRequest http) {
+        return ApiResponse.ok(authService.login(request, http.getRemoteAddr()));
     }
 }

@@ -3,6 +3,8 @@ package com.batong.share.controller;
 import com.batong.global.auth.RequireRole;
 import com.batong.global.auth.SubjectRole;
 import com.batong.global.enums.DocumentType;
+import com.batong.global.error.BusinessException;
+import com.batong.global.error.ErrorCode;
 import com.batong.global.response.ApiResponse;
 import com.batong.share.dto.ShareDtos.ApproveResponse;
 import com.batong.share.dto.ShareDtos.DraftRequest;
@@ -11,7 +13,9 @@ import com.batong.share.dto.ShareDtos.PublicShareResponse;
 import com.batong.share.dto.ShareDtos.RevokeResponse;
 import com.batong.share.dto.ShareDtos.SectionOptionsResponse;
 import com.batong.share.dto.ShareDtos.ShareListResponse;
+import com.batong.share.service.PublicShareLimiter;
 import com.batong.share.service.ShareService;
+import jakarta.servlet.http.HttpServletRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +43,7 @@ import java.time.LocalDate;
 public class ShareController {
 
     private final ShareService shareService;
+    private final PublicShareLimiter publicShareLimiter;
 
     @Operation(summary = "SHARE-01 문서 유형별 공개 가능 섹션")
     @RequireRole({SubjectRole.OWNER, SubjectRole.CO_MANAGER})
@@ -86,7 +91,11 @@ public class ShareController {
     @Operation(summary = "PUB-01 수신자 열람 (고정본만)")
     @SecurityRequirements
     @GetMapping("/public/shares/{token}")
-    public ResponseEntity<ApiResponse<PublicShareResponse>> getPublicShare(@PathVariable String token) {
+    public ResponseEntity<ApiResponse<PublicShareResponse>> getPublicShare(@PathVariable String token,
+                                                                          HttpServletRequest request) {
+        if (!publicShareLimiter.tryAcquire(request.getRemoteAddr())) {
+            throw new BusinessException(ErrorCode.COMMON_TOO_MANY_REQUESTS);
+        }
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
                 .header("Referrer-Policy", "no-referrer")

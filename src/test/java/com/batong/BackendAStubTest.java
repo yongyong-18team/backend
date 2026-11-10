@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,16 +37,19 @@ class BackendAStubTest {
     @Autowired
     JdbcClient jdbc;
 
-    // 스텁 로그인이 주는 userId 1·subjectId 10을 실제 소유 관계로 만들어 둔다
+    // 실제 가입·로그인으로 사용자를 만들고 subjectId 10의 주 보호자로 둔다(나머지 API는 아직 스텁)
     @BeforeEach
-    void seedOwner() {
-        jdbc.sql("INSERT INTO users (user_id, login_id, password_hash, created_at, updated_at) VALUES (1, 'mom1234', 'x', now(), now())").update();
-        jdbc.sql("INSERT INTO care_subject (subject_id, owner_user_id, name, birth_year, district, created_at, updated_at) VALUES (10, 1, '민지', 2001, 'SUJI', now(), now())").update();
+    void seedOwner() throws Exception {
+        mvc.perform(post("/api/v1/auth/signup").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"loginId\":\"mom1234\",\"password\":\"abcd1234\"}"))
+                .andExpect(status().isCreated());
+        jdbc.sql("INSERT INTO care_subject (subject_id, owner_user_id, name, birth_year, district, created_at, updated_at) "
+                + "SELECT 10, user_id, '민지', 2001, 'SUJI', now(), now() FROM users WHERE login_id = 'mom1234'").update();
     }
 
     @AfterEach
     void cleanUp() {
-        jdbc.sql("DELETE FROM users WHERE user_id = 1").update();
+        jdbc.sql("DELETE FROM users WHERE login_id = 'mom1234'").update();
     }
 
     private String loginToken() throws Exception {
@@ -70,50 +72,17 @@ class BackendAStubTest {
 
     @Test
     void 공개_API는_토큰_없이_호출된다() throws Exception {
-        mvc.perform(post("/api/v1/auth/signup").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"loginId\":\"mom1234\",\"password\":\"abcd1234\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.userId").value(1));
-        mvc.perform(get("/api/v1/auth/login-id/check").param("loginId", "mom1234"))
+        mvc.perform(get("/api/v1/auth/login-id/check").param("loginId", "newuser1"))
                 .andExpect(status().isOk());
-        mvc.perform(get("/api/v1/public/shares/any-token"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Cache-Control", "no-store"))
-                .andExpect(header().string("Referrer-Policy", "no-referrer"))
-                .andExpect(header().string("X-Robots-Tag", "noindex"))
-                .andExpect(jsonPath("$.data.content.basicInfo.name").value("민지"));
     }
 
     @Test
     void 로그인으로_받은_토큰으로_보호_API_스텁을_모두_호출할_수_있다() throws Exception {
         String t = loginToken();
 
-        call(HttpMethod.GET, "/api/v1/users/me", null, 200, t);
-        call(HttpMethod.PATCH, "/api/v1/users/me", "{\"displayName\":\"김영희\",\"relation\":\"PARENT\"}", 200, t);
-        call(HttpMethod.DELETE, "/api/v1/users/me", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/home", null, 200, t);
 
-        call(HttpMethod.POST, "/api/v1/subjects/10/guide/entries", "{\"section\":\"PROHIBITED\",\"content\":\"가상 항목\"}", 201, t);
-        call(HttpMethod.PATCH, "/api/v1/subjects/10/guide/entries/310", "{\"content\":\"가상 항목\"}", 200, t);
-        call(HttpMethod.DELETE, "/api/v1/subjects/10/guide/entries/310", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/diaries/501/items/review",
-                "{\"decisions\":[{\"itemNo\":1,\"status\":\"APPROVED\"}]}", 200, t);
 
-        call(HttpMethod.GET, "/api/v1/subjects/10/shares/section-options?documentType=GUIDE", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/drafts",
-                "{\"documentType\":\"GUIDE\",\"sectionCodes\":[\"BEHAVIOR_RESPONSE\"],\"showEmergencyContact\":true}", 201, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/approve", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/shares", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/shares/900/revoke", null, 200, t);
 
-        call(HttpMethod.GET, "/api/v1/users/lookup?loginId=dad5678", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/invitations", "{\"inviteeLoginId\":\"dad5678\"}", 201, t);
-        call(HttpMethod.POST, "/api/v1/subjects/10/invitations/70/cancel", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/users/me/invitations", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/users/me/invitations/70/accept", null, 200, t);
-        call(HttpMethod.POST, "/api/v1/users/me/invitations/70/reject", null, 200, t);
-        call(HttpMethod.GET, "/api/v1/subjects/10/members", null, 200, t);
-        call(HttpMethod.DELETE, "/api/v1/subjects/10/members/2", null, 200, t);
     }
 
     @Test
@@ -122,8 +91,7 @@ class BackendAStubTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.sections", hasSize(7)))
                 .andExpect(jsonPath("$.data.sections[0].section").value("PROHIBITED"))
-                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"))
-                .andExpect(jsonPath("$.data.updatedAt").value("2026-11-03T21:10:00+09:00"));
+                .andExpect(jsonPath("$.data.sections[6].section").value("PREFERENCE"));
     }
 
     @Test

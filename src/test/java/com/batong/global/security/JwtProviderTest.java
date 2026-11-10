@@ -43,4 +43,47 @@ class JwtProviderTest {
         assertThatThrownBy(() -> new JwtProvider("a".repeat(31), Duration.ofDays(7))).isInstanceOf(IllegalStateException.class);
         new JwtProvider("a".repeat(32), Duration.ofDays(7));
     }
+
+    private static String b64(String json) {
+        return java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void 서명_없는_alg_none_토큰은_거부한다() {
+        JwtProvider provider = new JwtProvider(SECRET, Duration.ofDays(7));
+        long exp = System.currentTimeMillis() / 1000 + 3600;
+        String token = b64("{\"alg\":\"none\"}") + "." + b64("{\"sub\":\"1\",\"exp\":" + exp + "}") + ".";
+
+        assertThatThrownBy(() -> provider.parseUserId(token)).isInstanceOf(JwtException.class);
+    }
+
+    @Test
+    void 서명이_바뀐_토큰은_거부한다() {
+        JwtProvider provider = new JwtProvider(SECRET, Duration.ofDays(7));
+        String token = provider.issue(1L);
+        String tampered = token.substring(0, token.length() - 3) + (token.endsWith("AAA") ? "BBB" : "AAA");
+
+        assertThatThrownBy(() -> provider.parseUserId(tampered)).isInstanceOf(JwtException.class);
+    }
+
+    @Test
+    void 본문의_userId를_바꾸면_서명이_맞지_않아_거부한다() {
+        JwtProvider provider = new JwtProvider(SECRET, Duration.ofDays(7));
+        String[] parts = provider.issue(1L).split("\\.");
+        String forged = parts[0] + "." + b64("{\"sub\":\"2\",\"exp\":9999999999}") + "." + parts[2];
+
+        assertThatThrownBy(() -> provider.parseUserId(forged)).isInstanceOf(JwtException.class);
+    }
+
+    @Test
+    void 서명은_맞아도_subject가_숫자가_아니면_거부한다() {
+        JwtProvider provider = new JwtProvider(SECRET, Duration.ofDays(7));
+        String token = io.jsonwebtoken.Jwts.builder().subject("abc")
+                .expiration(new java.util.Date(System.currentTimeMillis() + 60_000))
+                .signWith(io.jsonwebtoken.security.Keys.hmacShaKeyFor(SECRET.getBytes(java.nio.charset.StandardCharsets.UTF_8)))
+                .compact();
+
+        assertThatThrownBy(() -> provider.parseUserId(token)).isInstanceOf(JwtException.class);
+    }
 }
