@@ -70,18 +70,7 @@ class BackendBStubTest {
         return "/api/v1/subjects/" + subjectId + "/diaries";
     }
 
-    @Test
-    void ONB_01은_201과_대상자_ID를_준다() throws Exception {
-        mvc.perform(post("/api/v1/onboarding").header("Authorization", owner).contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"guardian":{"displayName":"김영희","relation":"PARENT"},
-                                 "subject":{"name":"민지","birthYear":2001,"district":"SUJI","dong":"풍덕천동"},
-                                 "profile":{"Q1":"아침 7시에 일어나요.","Q2":null,"Q3":null,"Q4":null,"Q5":null},
-                                 "consents":[{"consentType":"PRIVACY","termsVersion":"1.0"}]}"""))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.subjectId").value(10))
-                .andExpect(jsonPath("$.data.createdGuideEntryCount").value(4));
-    }
+    // ONB-01은 실제 구현으로 바뀌어 OnboardingApiTest가 검증한다
 
     @Test
     void STT_01은_multipart_audio를_받아_텍스트를_준다() throws Exception {
