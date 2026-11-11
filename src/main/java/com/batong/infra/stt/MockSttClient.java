@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 public class MockSttClient implements SttClient {
 
     static final String FIXED_TEXT =
-            "오후에 옆 건물 공사 소리가 나니까 민지가 귀를 막더니 30분 넘게 소리를 질렀다. "
-                    + "차에 태워서 트로트 틀어주니까 조용해졌다.";
+            "출근길에 버스가 평소보다 늦게 왔다. 민지가 정류장에서 계속 귀를 막고 소리를 질렀다. "
+                    + "버스가 오고 자리에 앉으니까 조금 조용해졌다.";
 
     @Override
     public String transcribe(byte[] audio, String contentType) {

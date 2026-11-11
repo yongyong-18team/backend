@@ -1,0 +1,16 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "저녁 약까지 챙긴 하루였네요.",
+  "items": [
+    {
+      "category": "MEDICATION",
+      "label": null,
+      "content": "저녁 식사 후 평소 먹는 약을 거부 없이 먹음",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "저녁 먹고 평소 먹는 약을 챙겨줬다"
+    }
+  ],
+  "burnoutSignal": false
+}

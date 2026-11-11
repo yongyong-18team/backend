@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "늦은 밤까지 곁을 지키느라 고단하셨겠어요.",
+  "items": [
+    {
+      "category": "CONDITION",
+      "label": null,
+      "content": "밤 11시가 넘어도 잠들지 않음",
+      "timeSlot": "NIGHT",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "밤 11시가 넘었는데도"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "수면 문제",
+      "content": "두 시간 가까이 방을 왔다 갔다 함",
+      "timeSlot": "NIGHT",
+      "durationMin": 120,
+      "episodeNo": 1,
+      "evidenceQuote": "방을 계속 왔다 갔다 했다"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "불을 어둡게 하고 늘 쓰던 담요를 주니 누움",
+      "timeSlot": "NIGHT",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "불을 조금 어둡게 하고 늘 쓰던 담요를 주니까 그제야 누웠다"
+    }
+  ],
+  "burnoutSignal": false
+}

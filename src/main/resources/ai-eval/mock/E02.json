@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "큰 공사 소리에 함께 애쓴 하루였네요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "옆집 공사 소리가 큼",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "옆집에서 공사를 했는데 소리가 꽤 컸다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "소리 지름",
+      "content": "귀를 막고 15분 정도 계속 소리를 지름",
+      "timeSlot": null,
+      "durationMin": 15,
+      "episodeNo": 1,
+      "evidenceQuote": "귀를 막고 15분 정도 계속 소리를 질러서"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "방으로 데려가니 조금씩 진정함",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "일단 방으로 데려갔다"
+    }
+  ],
+  "burnoutSignal": false
+}

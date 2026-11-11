@@ -1,0 +1,16 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "원하는 걸 그림으로 알려준 오후였네요.",
+  "items": [
+    {
+      "category": "COMMUNICATION",
+      "label": null,
+      "content": "물컵 그림을 가리켜 물을 달라고 알림",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "물컵 그림을 가리키길래 물을 줬다"
+    }
+  ],
+  "burnoutSignal": false
+}

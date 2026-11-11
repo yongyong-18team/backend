@@ -56,10 +56,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DiaryAnalyzeApiTest {
 
     private static final String E01 =
-            "오후에 옆 건물 공사 소리가 나니까 민지가 귀를 막더니 30분 넘게 소리를 질렀다. 차에 태워서 트로트 틀어주니까 조용해졌다.";
-    private static final String E20 = "민지는 아침을 잘 먹고 복지관에 갔다. 나는 요즘 매일 새벽에 깨서 세 시간도 못 잔다. 이제 정말 한계인 것 같다.";
-    private static final String E25 = "민지가 밤새 소리를 질러서 나도 모르게 화가 치밀었다. 민지를 때려서라도 조용히 시키고 싶다는 생각이 들어서 내가 무서웠다.";
-    private static final String E27 = "오늘도 밤새 한숨도 못 잤다. 요즘은 다 그만두고 그냥 사라지고 싶다는 생각만 든다.";
+            "출근길에 버스가 평소보다 늦게 왔다. 민지가 정류장에서 계속 귀를 막고 소리를 질렀다. 버스가 오고 자리에 앉으니까 조금 조용해졌다.";
+    private static final String E20 = "어제도 잠을 설쳤는데 아침부터 세탁기까지 고장 났다. 민지는 오후에 장난감 상자를 정리하며 잘 놀았다. 나는 밤에 몇 번씩 깨니까 출근해서도 머리가 멍하고 오늘은 정말 좀 쉬고 싶었다.";
+    /** 위기 키워드("사라지고 싶")에 걸리는 사례 */
+    private static final String E24 = "어젯밤에도 거의 못 잤다. 요즘은 모든 일을 그만두고 사라지고 싶다는 생각이 자꾸 든다. 나 스스로 목숨을 끊고 싶다는 생각까지 들어 무섭다.";
+    /** 위기 키워드에는 없고 LLM(Mock)만 CRISIS로 보는 사례 */
+    private static final String E26 = "오늘 민지와 다투는 동안 화가 너무 났다. 내가 민지를 다치게 할 것 같다는 생각이 들어서 겁이 났다.";
 
     @Autowired
     MockMvc mvc;
@@ -155,7 +157,7 @@ class DiaryAnalyzeApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.analysisNo").value(1))
                 .andExpect(jsonPath("$.data.result").value("REVIEW"))
-                .andExpect(jsonPath("$.data.empathyText").value("공사 소리 때문에 오후 내내 긴장하셨겠어요."))
+                .andExpect(jsonPath("$.data.empathyText").value("출근길 정류장에서 마음 졸이는 아침이었겠어요."))
                 .andExpect(jsonPath("$.data.itemCount").value(3))
                 .andExpect(jsonPath("$.data.items", hasSize(3)))
                 .andExpect(jsonPath("$.data.items[0].itemNo").value(1))
@@ -166,7 +168,7 @@ class DiaryAnalyzeApiTest {
 
         ArgumentCaptor<LlmRequest> sent = ArgumentCaptor.forClass(LlmRequest.class);
         verify(llmClient).complete(sent.capture());
-        assertThat(sent.getValue().userPrompt()).contains("대상자가 귀를 막더니").doesNotContain("민지");
+        assertThat(sent.getValue().userPrompt()).contains("대상자가 정류장에서").doesNotContain("민지");
 
         assertThat(diaryStatus(diaryId)).isEqualTo("DONE");
         Map<String, Object> analysis = analyses(diaryId).get(0);
@@ -207,7 +209,7 @@ class DiaryAnalyzeApiTest {
 
     @Test
     void 위기면_공감과_항목을_저장하지_않고_CRISIS만_기록한다() throws Exception {
-        long diaryId = diary(E27);
+        long diaryId = diary(E24);
 
         analyze(owner, diaryId)
                 .andExpect(status().isOk())
@@ -230,7 +232,7 @@ class DiaryAnalyzeApiTest {
 
     @Test
     void 키워드에_없어도_LLM이_CRISIS면_위기다() throws Exception {
-        long diaryId = diary(E25);
+        long diaryId = diary(E26);
 
         analyze(owner, diaryId).andExpect(status().isOk()).andExpect(jsonPath("$.data.result").value("CRISIS"));
     }
@@ -238,7 +240,7 @@ class DiaryAnalyzeApiTest {
     @Test
     void LLM이_실패해도_키워드가_맞으면_keyword_only_CRISIS로_저장한다() throws Exception {
         doThrow(new LlmException(LlmException.Type.SERVER_ERROR, "5xx")).when(llmClient).complete(any());
-        long diaryId = diary(E27);
+        long diaryId = diary(E24);
 
         analyze(owner, diaryId).andExpect(status().isOk()).andExpect(jsonPath("$.data.result").value("CRISIS"));
 

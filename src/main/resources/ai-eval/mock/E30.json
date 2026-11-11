@@ -1,33 +1,24 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "저녁 시간에 많이 놀라셨겠어요.",
+  "empathy": "마음 놓을 틈 없던 오후였겠어요.",
   "items": [
     {
       "category": "BEHAVIOR",
-      "label": "자해 행동",
-      "content": "식사 중 갑자기 머리를 벽에 박음",
-      "timeSlot": "EVENING",
+      "label": "타인 공격",
+      "content": "옆 사람 팔을 한 번 때림",
+      "timeSlot": "AFTERNOON",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "대상자가 갑자기 머리를 벽에 박았다"
+      "evidenceQuote": "옆 사람 팔을 한 번 때렸다"
     },
     {
       "category": "RESPONSE",
       "label": null,
-      "content": "좋아하는 담요를 덮어주니 10분쯤 지나 진정됨",
-      "timeSlot": "EVENING",
+      "content": "거리를 두고 앉게 하니 더 때리지 않음",
+      "timeSlot": "AFTERNOON",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "좋아하는 담요를 덮어주니 10분쯤 지나 진정됐다"
-    },
-    {
-      "category": "PREFERENCE",
-      "label": null,
-      "content": "좋아하는 담요를 덮어주면 안정됨",
-      "timeSlot": null,
-      "durationMin": null,
-      "episodeNo": null,
-      "evidenceQuote": "좋아하는 담요를 덮어주니"
+      "evidenceQuote": "서로 거리를 두고 앉게 했더니 더 때리지는 않았다"
     }
   ],
   "burnoutSignal": false

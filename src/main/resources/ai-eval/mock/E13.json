@@ -1,42 +1,33 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "아침부터 저녁까지 식사를 하나하나 챙긴 하루였네요.",
+  "empathy": "조금 여유 있게 시작한 토요일 아침이었네요.",
   "items": [
+    {
+      "category": "ROUTINE",
+      "label": null,
+      "content": "아침 8시에 일어나 세수함",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "대상자가 아침 8시에 일어나 세수하고"
+    },
     {
       "category": "MEAL",
       "label": null,
-      "content": "아침에 밥을 반 공기 먹음",
+      "content": "9시쯤 토스트를 먹음",
       "timeSlot": "MORNING",
       "durationMin": null,
       "episodeNo": null,
-      "evidenceQuote": "대상자가 밥을 반 공기 먹고"
+      "evidenceQuote": "9시쯤 토스트를 먹었다"
     },
     {
-      "category": "MEDICATION",
+      "category": "ROUTINE",
       "label": null,
-      "content": "아침에 약을 먹음",
-      "timeSlot": "MORNING",
-      "durationMin": null,
-      "episodeNo": null,
-      "evidenceQuote": "약을 먹었다"
-    },
-    {
-      "category": "COMMUNICATION",
-      "label": null,
-      "content": "배가 고프면 손으로 배를 두드려서 알림",
+      "content": "평일에는 8시 30분쯤 센터에 가고 주말은 집에서 보냄",
       "timeSlot": null,
       "durationMin": null,
       "episodeNo": null,
-      "evidenceQuote": "배가 고프면 손으로 배를 두드려서 알려준다"
-    },
-    {
-      "category": "MEAL",
-      "label": null,
-      "content": "김치를 골라내고 먹음",
-      "timeSlot": "EVENING",
-      "durationMin": null,
-      "episodeNo": null,
-      "evidenceQuote": "저녁에는 김치를 다 골라내고 먹었다"
+      "evidenceQuote": "평일에는 8시 30분쯤 센터에 가는데 주말은 집에서 보낸다"
     }
   ],
   "burnoutSignal": false

@@ -1,0 +1,43 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "점심 한 끼에 한참을 기다려 준 하루였네요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "늘 먹던 반찬이 없었음",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "집에 늘 먹던 반찬이 없었다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "식사 거부",
+      "content": "점심을 안 먹겠다고 함",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "점심을 안 먹겠다고 해서"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "계란찜을 내주니 조금 먹음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "나중에 계란찜을 내주니까"
+    },
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "계란찜은 조금 먹음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "그건 조금 먹었다"
+    }
+  ],
+  "burnoutSignal": false
+}

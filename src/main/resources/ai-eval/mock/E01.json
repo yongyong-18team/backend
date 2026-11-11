@@ -1,33 +1,33 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "공사 소리 때문에 오후 내내 긴장하셨겠어요.",
+  "empathy": "출근길 정류장에서 마음 졸이는 아침이었겠어요.",
   "items": [
     {
       "category": "TRIGGER",
       "label": null,
-      "content": "옆 건물 공사 소리가 나자 불안해함",
-      "timeSlot": "AFTERNOON",
+      "content": "버스가 평소보다 늦게 옴",
+      "timeSlot": "MORNING",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "오후에 옆 건물 공사 소리가 나니까"
+      "evidenceQuote": "출근길에 버스가 평소보다 늦게 왔다"
     },
     {
       "category": "BEHAVIOR",
       "label": "소리 지름",
-      "content": "30분 넘게 소리를 지름",
-      "timeSlot": "AFTERNOON",
-      "durationMin": 30,
+      "content": "정류장에서 귀를 막고 계속 소리를 지름",
+      "timeSlot": "MORNING",
+      "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "30분 넘게 소리를 질렀다"
+      "evidenceQuote": "정류장에서 계속 귀를 막고 소리를 질렀다"
     },
     {
       "category": "RESPONSE",
       "label": null,
-      "content": "차에 태워 트로트를 틀어주니 조용해짐",
-      "timeSlot": "AFTERNOON",
+      "content": "버스에 타서 자리에 앉으니 조금 조용해짐",
+      "timeSlot": "MORNING",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "차에 태워서 트로트 틀어주니까 조용해졌다"
+      "evidenceQuote": "버스가 오고 자리에 앉으니까 조금 조용해졌다"
     }
   ],
   "burnoutSignal": false

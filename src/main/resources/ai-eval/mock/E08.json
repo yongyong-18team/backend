@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "붐비는 대기실에서 오래 기다리느라 애쓰셨어요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "병원 대기실에 사람이 많음",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "병원 대기실에 사람이 많았다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "반복 행동",
+      "content": "언제 들어가냐는 질문을 계속함",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "언제 들어가냐고 같은 질문을 계속해서"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "번호표를 같이 보고 손가락으로 순서를 알려주니 질문이 줄어듦",
+      "timeSlot": null,
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "손가락으로 순서를 알려주니까 질문이 줄었다"
+    }
+  ],
+  "burnoutSignal": false
+}

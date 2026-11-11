@@ -1,0 +1,25 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "예고 없는 손님에 정신없는 저녁이었겠어요.",
+  "items": [
+    {
+      "category": "TRIGGER",
+      "label": null,
+      "content": "친척이 예고 없이 찾아옴",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "저녁에 친척이 예고 없이 찾아왔다"
+    },
+    {
+      "category": "BEHAVIOR",
+      "label": "기타 행동",
+      "content": "책을 바닥에 던짐",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "갑자기 책을 바닥에 던졌다"
+    }
+  ],
+  "burnoutSignal": false
+}

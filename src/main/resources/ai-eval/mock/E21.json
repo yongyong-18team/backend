@@ -1,0 +1,16 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "아침부터 저녁까지 쉴 틈 없이 보낸 하루였네요.",
+  "items": [
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "아침밥을 챙겨 줌",
+      "timeSlot": "MORNING",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "아침에 대상자 밥 챙기고"
+    }
+  ],
+  "burnoutSignal": true
+}

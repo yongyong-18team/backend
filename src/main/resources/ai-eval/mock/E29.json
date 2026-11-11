@@ -1,33 +1,24 @@
 {
   "safetyLevel": "NORMAL",
-  "empathy": "사람이 많은 마트에서 갑작스러운 일을 겪으셨네요.",
+  "empathy": "갑작스러운 일에 급히 움직인 저녁이었겠어요.",
   "items": [
     {
-      "category": "TRIGGER",
-      "label": null,
-      "content": "마트에 사람이 많아짐",
-      "timeSlot": null,
-      "durationMin": null,
-      "episodeNo": 1,
-      "evidenceQuote": "마트에 사람이 많아지자"
-    },
-    {
       "category": "BEHAVIOR",
-      "label": "타인 공격",
-      "content": "옆에 있던 사람의 팔을 때림",
-      "timeSlot": null,
+      "label": "자해 행동",
+      "content": "저녁 먹다가 갑자기 머리를 벽에 박음",
+      "timeSlot": "EVENING",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "대상자가 옆에 있던 아주머니 팔을 때렸다"
+      "evidenceQuote": "갑자기 자신의 머리를 벽에 박았다"
     },
     {
       "category": "RESPONSE",
       "label": null,
-      "content": "사과하고 조용한 출구 쪽으로 데리고 나가니 금방 진정됨",
-      "timeSlot": null,
+      "content": "옆으로 데려와 담요를 덮어주니 10분 정도 지나 진정함",
+      "timeSlot": "EVENING",
       "durationMin": null,
       "episodeNo": 1,
-      "evidenceQuote": "바로 사과드리고 조용한 출구 쪽으로 데리고 나가니 금방 진정됐다"
+      "evidenceQuote": "담요를 덮어줬더니 10분 정도 지나 진정됐다"
     }
   ],
   "burnoutSignal": false

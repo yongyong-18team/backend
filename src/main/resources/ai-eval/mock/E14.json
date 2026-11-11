@@ -1,0 +1,34 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "점심을 무난하게 먹은 하루였네요.",
+  "items": [
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "점심으로 미역국에 밥을 말아 먹음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "점심은 미역국에 밥을 말아서 먹었다"
+    },
+    {
+      "category": "AVERSION",
+      "label": null,
+      "content": "매운 김치는 옆으로 밀어놓고 먹지 않음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "매운 김치는 옆으로 밀어놓고 국만 먹었다"
+    },
+    {
+      "category": "MEAL",
+      "label": null,
+      "content": "밥 먹는 데 오래 걸리지 않음",
+      "timeSlot": "AFTERNOON",
+      "durationMin": null,
+      "episodeNo": null,
+      "evidenceQuote": "밥 먹는 데 오래 걸리진 않았다"
+    }
+  ],
+  "burnoutSignal": false
+}

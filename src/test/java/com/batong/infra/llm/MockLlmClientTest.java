@@ -13,7 +13,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MockLlmClientTest {
 
     private static final String E01_TEXT =
-            "오후에 옆 건물 공사 소리가 나니까 민지가 귀를 막더니 30분 넘게 소리를 질렀다. 차에 태워서 트로트 틀어주니까 조용해졌다.";
+            "출근길에 버스가 평소보다 늦게 왔다. 민지가 정류장에서 계속 귀를 막고 소리를 질렀다. 버스가 오고 자리에 앉으니까 조금 조용해졌다.";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
@@ -40,7 +42,7 @@ class MockLlmClientTest {
 
     @Test
     void 띄어쓰기와_문장부호가_달라도_같은_응답을_찾는다() throws Exception {
-        String typed = "오후에 옆 건물 공사소리가 나니까  민지가 귀를 막더니 30분 넘게 소리를 질렀다\n차에 태워서 트로트 틀어주니까 조용해졌다!!";
+        String typed = "출근길에 버스가 평소보다  늦게 왔다\n민지가 정류장에서 계속 귀를막고 소리를 질렀다. 버스가 오고 자리에 앉으니까 조금 조용해졌다!!";
 
         JsonNode json = objectMapper.readTree(client.complete(analyzeRequest("x", typed)).content());
 
@@ -49,7 +51,7 @@ class MockLlmClientTest {
 
     @Test
     void 위기_사례는_CRISIS를_돌려준다() throws Exception {
-        String text = "오늘도 밤새 한숨도 못 잤다. 요즘은 다 그만두고 그냥 사라지고 싶다는 생각만 든다.";
+        String text = "오늘 민지와 다투는 동안 화가 너무 났다. 내가 민지를 다치게 할 것 같다는 생각이 들어서 겁이 났다.";
 
         JsonNode json = objectMapper.readTree(client.complete(analyzeRequest("x", text)).content());
 
@@ -164,6 +166,56 @@ class MockLlmClientTest {
                 }
             }
         }
+    }
+
+    /** 기획이 문장을 바꾸면 Mock이 기본 NORMAL로 떨어진다. 위기 사례가 조용히 NORMAL이 되는 것을 막는다 */
+    @Test
+    void 평가셋의_모든_사례에_Mock_응답이_있다() throws Exception {
+        List<JsonNode> cases = readEvalSet();
+        assertThat(cases).hasSize(30);
+        for (JsonNode evalCase : cases) {
+            String id = evalCase.path("id").asText();
+            assertThat(resourceLoader.getResource("classpath:ai-eval/mock/" + id + ".json").exists())
+                    .as("%s Mock 파일", id).isTrue();
+            JsonNode json = objectMapper.readTree(
+                    client.complete(analyzeRequest("x", evalCase.path("text").asText())).content());
+            assertThat(json.path("safetyLevel").asText())
+                    .as("%s 원문 해시로 찾은 응답", id).isEqualTo(evalCase.path("expected").path("safetyLevel").asText());
+        }
+    }
+
+    /** Mock 응답은 평가셋 기대값과 같아야 한다. 시연에서 보이는 결과가 곧 기대 판정이다 */
+    @Test
+    void Mock_응답은_평가셋_기대값과_같다() throws Exception {
+        for (JsonNode evalCase : readEvalSet()) {
+            String id = evalCase.path("id").asText();
+            JsonNode expected = evalCase.path("expected");
+            JsonNode response = objectMapper.readTree(
+                    resourceLoader.getResource("classpath:ai-eval/mock/" + id + ".json").getInputStream());
+            assertThat(response.path("safetyLevel").asText()).as("%s safetyLevel", id)
+                    .isEqualTo(expected.path("safetyLevel").asText());
+            if (!"NORMAL".equals(expected.path("safetyLevel").asText())) {
+                continue;
+            }
+            Set<String> categories = new HashSet<>();
+            Set<String> labels = new HashSet<>();
+            for (JsonNode item : response.path("items")) {
+                categories.add(item.path("category").asText());
+                if (!item.path("label").isNull()) {
+                    labels.add(item.path("label").asText());
+                }
+            }
+            assertThat(categories).as("%s category", id).isEqualTo(texts(expected.path("categories")));
+            assertThat(labels).as("%s label", id).isEqualTo(texts(expected.path("behaviorLabels")));
+            assertThat(response.path("burnoutSignal").asBoolean()).as("%s burnoutSignal", id)
+                    .isEqualTo(expected.path("burnoutSignal").asBoolean());
+        }
+    }
+
+    private static Set<String> texts(JsonNode array) {
+        Set<String> result = new HashSet<>();
+        array.forEach(v -> result.add(v.asText()));
+        return result;
     }
 
     private LlmRequest analyzeRequest(String userPrompt, String originalText) {

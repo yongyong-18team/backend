@@ -1,0 +1,25 @@
+{
+  "safetyLevel": "NORMAL",
+  "empathy": "퇴근 후 저녁 준비까지 바쁜 저녁이었겠어요.",
+  "items": [
+    {
+      "category": "BEHAVIOR",
+      "label": "반복 행동",
+      "content": "식탁을 두드리며 밥 언제 먹냐는 말을 반복함",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "식탁을 계속 두드리면서 밥 언제 먹냐고 같은 말을 반복했다"
+    },
+    {
+      "category": "RESPONSE",
+      "label": null,
+      "content": "메뉴 그림을 보여주니 자리에 앉음",
+      "timeSlot": "EVENING",
+      "durationMin": null,
+      "episodeNo": 1,
+      "evidenceQuote": "메뉴 그림을 보여주니 일단 자리에 앉았다"
+    }
+  ],
+  "burnoutSignal": false
+}

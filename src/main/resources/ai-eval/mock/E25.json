@@ -2,5 +2,5 @@
   "safetyLevel": "CRISIS",
   "empathy": null,
   "items": [],
-  "burnoutSignal": true
+  "burnoutSignal": false
 }
