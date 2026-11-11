@@ -136,6 +136,33 @@ class HomeApiTest {
     }
 
     @Test
+    void 일기가_없으면_careDays는_null이다() throws Exception {
+        home(owner).andExpect(jsonPath("$.data.careDays").value(org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void careDays는_가장_이른_일기부터_오늘까지_첫날을_1일째로_센다() throws Exception {
+        diary(today(), "오늘");
+        home(owner).andExpect(jsonPath("$.data.careDays").value(1));
+
+        diary(today().minusDays(5), "닷새 전");
+        diary(today().minusDays(2), "이틀 전");
+        home(owner).andExpect(jsonPath("$.data.careDays").value(6));
+    }
+
+    @Test
+    void 가장_이른_일기가_미래_날짜면_careDays는_null이다() throws Exception {
+        diary(today().plusDays(1), "미래");
+        home(owner).andExpect(jsonPath("$.data.careDays").value(org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void CO에게도_careDays를_준다() throws Exception {
+        diary(today().minusDays(9), "열흘 전");
+        home(co).andExpect(jsonPath("$.data.careDays").value(10));
+    }
+
+    @Test
     void 받은_초대_수는_본인_PENDING만() throws Exception {
         jdbc.sql("INSERT INTO invitation (subject_id, invitee_user_id, status, created_at) VALUES (:s, :u, 'PENDING', now())")
                 .param("s", subjectId).param("u", stranger).update();

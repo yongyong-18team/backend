@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /** USER-01~03, HOME-01 */
@@ -102,6 +103,10 @@ public class UserService {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
         boolean todayRecorded = jdbc.sql("SELECT EXISTS (SELECT 1 FROM diary WHERE subject_id = :s AND diary_date = :d)")
                 .param("s", subjectId).param("d", today).query(Boolean.class).single();
+        LocalDate firstDiaryDate = jdbc.sql("SELECT min(diary_date) FROM diary WHERE subject_id = :s")
+                .param("s", subjectId).query(LocalDate.class).optional().orElse(null);
+        Integer careDays = firstDiaryDate == null || firstDiaryDate.isAfter(today) ? null
+                : (int) ChronoUnit.DAYS.between(firstDiaryDate, today) + 1;
         List<RecentActivity> activities = jdbc.sql("""
                 SELECT d.diary_id, d.diary_date, d.content,
                        count(*) FILTER (WHERE i.status = 'APPROVED') AS approved,
@@ -119,7 +124,7 @@ public class UserService {
                 .list();
         int pendingInvitations = jdbc.sql("SELECT count(*) FROM invitation WHERE invitee_user_id = :u AND status = 'PENDING'")
                 .param("u", userId).query(Integer.class).single();
-        return new HomeResponse(role, name, todayRecorded, activities, pendingInvitations);
+        return new HomeResponse(role, name, todayRecorded, careDays, activities, pendingInvitations);
     }
 
     private static String preview(String content) {

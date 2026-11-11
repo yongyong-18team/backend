@@ -22,8 +22,8 @@ public final class UserDtos {
     public record ProfileUpdateResponse(Long userId, String displayName, Relation relation) {
     }
 
-    /** preview는 CO에게 null(일기 원문 비공개) */
-    public record HomeResponse(SubjectRole role, String name, boolean todayRecorded,
+    /** preview는 CO에게 null(일기 원문 비공개). careDays는 가장 이른 일기부터 오늘까지 첫날을 1일째로 센 값이고, 일기가 없으면 null */
+    public record HomeResponse(SubjectRole role, String name, boolean todayRecorded, Integer careDays,
                                List<RecentActivity> recentActivities, int pendingInvitationCount) {
     }
 

@@ -284,6 +284,7 @@ relation: PARENT / OTHER
   "role": "OWNER",
   "name": "민지",
   "todayRecorded": false,
+  "careDays": 32,
   "recentActivities": [
     { "diaryId": 501, "diaryDate": "2026-11-03", "preview": "오후에 옆 건물 공사 소리가...", "approvedCount": 3, "pendingCount": 0 }
   ],
@@ -291,6 +292,7 @@ relation: PARENT / OTHER
 }
 ```
 - CO에게는 `preview`가 null이다(일기 원문 비공개).
+- `careDays`: 이 대상자의 가장 이른 `diaryDate`부터 오늘(Asia/Seoul)까지 첫날을 1일째로 센 값이다(홈의 "{일수}일째"). 일기가 없거나 가장 이른 일기가 미래 날짜면 null이다. OWNER와 CO 모두에게 내려준다(#91).
 - 최근 활동을 누르면 OWNER는 DIARY-04, CO는 REPORT-02를 호출한다.
 
 ### STT-01 음성 변환
