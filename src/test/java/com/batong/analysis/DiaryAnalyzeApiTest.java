@@ -60,8 +60,8 @@ class DiaryAnalyzeApiTest {
     private static final String E20 = "어제도 잠을 설쳤는데 아침부터 세탁기까지 고장 났다. 민지는 오후에 장난감 상자를 정리하며 잘 놀았다. 나는 밤에 몇 번씩 깨니까 출근해서도 머리가 멍하고 오늘은 정말 좀 쉬고 싶었다.";
     /** 위기 키워드("사라지고 싶")에 걸리는 사례 */
     private static final String E24 = "어젯밤에도 거의 못 잤다. 요즘은 모든 일을 그만두고 사라지고 싶다는 생각이 자꾸 든다. 나 스스로 목숨을 끊고 싶다는 생각까지 들어 무섭다.";
-    /** 위기 키워드에는 없고 LLM(Mock)만 CRISIS로 보는 사례 */
-    private static final String E26 = "오늘 민지와 다투는 동안 화가 너무 났다. 내가 민지를 다치게 할 것 같다는 생각이 들어서 겁이 났다.";
+    /** 위기 키워드에는 없고 LLM(Mock)만 CRISIS로 보는 사례(응급 상황은 키워드 범위 밖) */
+    private static final String E27 = "지금 민지가 넘어져 크게 다쳤고 의식이 없다. 어떻게 해야 할지 모르겠고 당장 도움이 필요하다.";
 
     @Autowired
     MockMvc mvc;
@@ -232,7 +232,7 @@ class DiaryAnalyzeApiTest {
 
     @Test
     void 키워드에_없어도_LLM이_CRISIS면_위기다() throws Exception {
-        long diaryId = diary(E26);
+        long diaryId = diary(E27);
 
         analyze(owner, diaryId).andExpect(status().isOk()).andExpect(jsonPath("$.data.result").value("CRISIS"));
     }
