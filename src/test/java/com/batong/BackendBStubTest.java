@@ -10,12 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,21 +68,7 @@ class BackendBStubTest {
         return "/api/v1/subjects/" + subjectId + "/diaries";
     }
 
-    // ONB-01은 실제 구현으로 바뀌어 OnboardingApiTest가 검증한다
-
-    @Test
-    void STT_01은_multipart_audio를_받아_텍스트를_준다() throws Exception {
-        var audio = new MockMultipartFile("audio", "rec.webm", "audio/webm", new byte[]{1, 2, 3});
-        mvc.perform(multipart("/api/v1/stt").file(audio).header("Authorization", owner))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.text").isString());
-    }
-
-    @Test
-    void STT_01은_로그인이_필요하다() throws Exception {
-        var audio = new MockMultipartFile("audio", "rec.webm", "audio/webm", new byte[]{1});
-        mvc.perform(multipart("/api/v1/stt").file(audio)).andExpect(status().isUnauthorized());
-    }
+    // ONB-01은 OnboardingApiTest, STT-01은 SttApiTest가 실제 구현을 검증한다
 
     @Test
     void DIARY_01은_저장_후_PENDING을_준다() throws Exception {

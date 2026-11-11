@@ -34,6 +34,11 @@ app:
     api-key: ${LLM_API_KEY:}
     model: ${LLM_MODEL:}
     timeout-ms: ${LLM_TIMEOUT_MS:15000}
+  # AI_MODE=live일 때만 쓴다(TRD 8-2, 12-5). 키가 비어 있으면 기동 실패. 모델은 TRD 8-2 고정값
+  stt:
+    provider: ${STT_PROVIDER:groq}
+    api-key: ${STT_API_KEY:}
+    model: whisper-large-v3
   jwt:
     secret: ${JWT_SECRET:}
     access-ttl: ${JWT_ACCESS_TTL:7d}
