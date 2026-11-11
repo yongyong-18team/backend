@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 @Component
 public class CrisisKeywordChecker {
 
-    static final String PATH = "classpath:prompts/crisis_keywords_v1.txt";
+    static final String PATH = "classpath:prompts/crisis_keywords_v2.txt";
     private static final Pattern WHITESPACE = Pattern.compile("\\s");
 
     private final List<String> keywords;
