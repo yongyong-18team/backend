@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/logo.png" alt="돌봄바통 로고" width="140">
+</p>
+
 # 돌봄바통 (Batong) — Backend
 
 [![CI](https://github.com/yongyong-18team/backend/actions/workflows/ci.yml/badge.svg)](https://github.com/yongyong-18team/backend/actions/workflows/ci.yml)
@@ -12,6 +16,11 @@
 
 해커톤 MVP이며 **가상 데이터만** 사용합니다.
 
+| 바로가기 | |
+|---|---|
+| 서비스 화면 (React 모바일 웹) | https://yongyong-18team-frontend.vercel.app |
+| API 서버 / Swagger UI | https://batong-team18.duckdns.org/swagger-ui/index.html |
+
 ---
 
 ## 목차
@@ -25,7 +34,8 @@
 - [프로젝트 구조](#프로젝트-구조)
 - [로컬 실행](#로컬-실행)
 - [협업 방식](#협업-방식)
-- [진행 상황](#진행-상황)
+- [현재 상태](#현재-상태)
+- [알려진 한계](#알려진-한계)
 - [문서](#문서)
 
 ---
@@ -56,12 +66,12 @@ flowchart LR
 | 검토·반영 | 추출 항목을 선택·수정해 설명서에 반영. 같은 내용 중복 저장 방지 | ITEM-01 |
 | 돌봄 설명서 | 절대 금지, 건강 위험, 의사소통, 행동·위기 대응, 일과, 복약, 선호·비선호 | GUIDE-01~04 |
 | 기록 | 일일 기록, 최근 7일 주간 리포트(반복 행동, 시간대 패턴, 주요 변화) | REPORT-01~03 |
-| 공유 | 문서 유형(설명서·일일·주간)과 공개 섹션을 골라 고정본 링크 발급, 내역 관리, 접근 중지 | SHARE-01~05, PUB-01 |
+| 공유 | 문서 유형(설명서·일일)과 공개 섹션을 골라 고정본 링크 발급, 내역 관리, 접근 중지. 주간 리포트 공유는 MVP 이후 | SHARE-01~05, PUB-01 |
 | 공동 관리자 | 가족을 초대해 설명서 열람·공유·돌봄 지원을 함께 사용. 일기 원문은 비공개 | INVITE-01~06, MEMBER-01~03 |
 | 돌봄 지원 | 단기·장기, 날짜, 지역 조건으로 용인시 시설과 지원 제도 검색 | RES-01~02 |
 | 보호자 지원 | 소진 신호가 누적되면 휴식·상담 제도 안내, 위기 표현이 있으면 안전 안내 | SUP-01~02 |
 
-API 46개, 에러 코드 41개. 전체 목록은 [API 명세](docs/API_명세_v1.4.md)에 있습니다.
+명세의 API 47개 중 45개를 구현했고, 에러 코드는 42개입니다. 구현하지 않은 2개는 AI_MODE 런타임 전환(ADMIN-02, 환경변수 변경과 재시작으로 대체)과 MVP 이후 범위인 GAP-06입니다. 전체 목록은 [API 명세](docs/API_명세_v1.4.md)에 있습니다.
 
 ---
 
@@ -127,9 +137,9 @@ sequenceDiagram
 
 ### 6. 외부 장애에도 시연이 멈추지 않게
 
-- LLM·STT는 인터페이스 뒤에 두고 환경변수로 공급자를 고릅니다. 공급자가 정해지지 않아도 나머지 코드는 바뀌지 않습니다.
+- LLM(Gemini)과 STT(Groq Whisper)는 인터페이스 뒤에 두고 환경변수로 공급자를 고릅니다. 공급자를 바꿔도 나머지 코드는 바뀌지 않습니다.
 - `AI_MODE=mock`이면 평가셋 정답 응답을 돌려줍니다. 로컬 개발, CI, 시연 중 장애 대응에 같이 씁니다.
-- 공공데이터는 사용자 요청 중에 호출하지 않고 미리 DB에 적재합니다. API가 없거나 부족하면 공식 자료를 정리한 CSV로 적재합니다.
+- 시설 데이터는 사용자 요청 중에 외부 API를 부르지 않고, 공식 자료를 정리한 CSV를 관리자 API(ADMIN-01)로 미리 DB에 적재합니다.
 
 ### 7. 스키마로 규칙을 강제
 
@@ -155,7 +165,7 @@ flowchart LR
   end
   L[LLM API]
   T[STT API]
-  P[공공데이터 API]
+  P[시설 CSV]
   A --> V
   R --> V
   V -- REST --> N --> S --> D
@@ -173,10 +183,10 @@ flowchart LR
 | Language / Framework | Java 17, Spring Boot 3.5.16 (Web, Validation, Data JPA, Security, Actuator) |
 | DB / Migration | PostgreSQL 16, Flyway, JSONB(`@JdbcTypeCode`) |
 | 인증 | Spring Security, JWT(jjwt 0.12), BCrypt |
-| 외부 연동 | Spring `RestClient` (LLM, STT, 공공데이터) |
+| 외부 연동 | Spring `RestClient`: LLM(Gemini), STT(Groq Whisper `whisper-large-v3`). 시설 데이터는 정리한 CSV를 적재 |
 | 문서 | springdoc-openapi (Swagger UI) |
 | 테스트 | JUnit 5, Mockito, Testcontainers |
-| 빌드 / CI·CD | Gradle 8.14, GitHub Actions, systemd |
+| 빌드 / CI·CD | Gradle 8.14.3, GitHub Actions, systemd |
 | 인프라 | AWS Lightsail(Ubuntu 24.04), Nginx, Let's Encrypt |
 | 프론트 (별도 레포) | React 모바일 웹, Vercel |
 
@@ -218,12 +228,14 @@ com.batong
  ├─ guide         설명서, 추출 항목 승인
  ├─ report        일일·주간 리포트
  ├─ share         공유 초안·승인·토큰·공개 열람
- ├─ support       돌봄 지원 검색, 안내
+ ├─ resource      지원 제도·시설 조건 검색, 상세
+ ├─ support       소진 지원·위기 안전 안내
  ├─ wellbeing     소진·위기 신호 (비공개)
+ ├─ scheduler     공유 초안 정리, 고정본 파기, 멈춘 분석 복구
  └─ infra
-     ├─ llm        LlmClient + 공급자별 구현 + Mock
-     ├─ stt        SttClient + 구현 + Mock
-     └─ publicdata 공공데이터 수집기
+     ├─ llm        LlmClient + Gemini 구현 + Mock
+     ├─ stt        SttClient + Groq 구현 + Mock
+     └─ publicdata 시설 CSV 적재
 ```
 
 도메인마다 `controller / service / repository / domain / dto`로 나눕니다. 응답은 `ApiResponse<T>`로 감싸고, 에러는 `BusinessException(ErrorCode)`로 던집니다. 엔티티에는 setter를 두지 않고, DTO는 record로 씁니다.
@@ -258,15 +270,24 @@ docker compose up -d db                                     # 로컬 PostgreSQL
 - **문서가 기준입니다.** 테이블·API·에러 코드는 v1.4 문서를 그대로 따르고, 명세에 없는 필드나 API는 만들지 않습니다. 모호하면 구현하지 않고 이슈로 묻습니다.
 - **AI 코딩 도구용 규칙을 레포에 둡니다.** [`AGENTS.md`](AGENTS.md)에 버전 주의사항(Boot 3.5, jakarta, jjwt 0.12 등), 보안 규칙, 담당 범위를 적어 두어 어떤 도구를 쓰든 같은 규칙으로 코드를 만들게 했습니다. 자세한 내용은 [CONTRIBUTING.md](CONTRIBUTING.md)에 있습니다.
 
-## 진행 상황
+## 현재 상태
 
 - [x] 설계 문서 v1.4 (TRD, ERD, API 명세, AI 명세)
-- [x] 프로젝트 골격, CI, 브랜치 보호, 이슈 37개 등록
-- [ ] global 공통 모듈 (응답·예외·JWT·Security·`@RequireRole`)
-- [ ] Flyway V1 전체 스키마
-- [ ] 도메인별 API 구현
-- [ ] AI 평가셋 30건 적용, LLM·STT 공급자 결정
-- [ ] 서버 배포, HTTPS
+- [x] 프로젝트 골격, CI, 브랜치 보호
+- [x] global 공통 모듈 (응답·예외·JWT·Security·`@RequireRole`)
+- [x] Flyway V1 전체 스키마 (테이블 16개)
+- [x] 도메인 API 45개 구현
+- [x] AI 평가셋 30건과 Mock 응답, Gemini·Groq 클라이언트
+- [x] 서버 배포, HTTPS
+- [ ] 시연용 데모 시드 데이터 (리뷰 중)
+- [ ] 시연 리허설
+
+## 알려진 한계
+
+- 주간 리포트 공유(WEEKLY)는 구현하지 않았습니다. 공유는 돌봄 설명서와 일일 기록만 됩니다.
+- AI_MODE 런타임 전환 API(ADMIN-02)는 만들지 않았습니다. `.env`의 `AI_MODE`를 바꾸고 재시작합니다.
+- 로그인은 ID·비밀번호만 지원합니다. 소셜 로그인은 없습니다.
+- 서버가 한 대라서 요청 제한(로그인, 멤버 조회, 공개 링크)은 서버 메모리에 둡니다. 재시작하면 초기화되고, 서버를 늘리면 DB나 Redis로 옮겨야 합니다.
 
 ## 문서
 
