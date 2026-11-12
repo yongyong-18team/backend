@@ -309,7 +309,9 @@ relation: PARENT / OTHER
 // Response 201
 { "diaryId": 501, "analysisStatus": "PENDING" }
 ```
-에러: `DIARY_EMPTY_CONTENT` 400
+- `diaryDate`는 오늘(Asia/Seoul)보다 미래일 수 없다. 미래 날짜면 저장하지 않고 `COMMON_VALIDATION` 400이다(기획 결정, #99).
+
+에러: `DIARY_EMPTY_CONTENT` 400, `COMMON_VALIDATION` 400
 
 ### DIARY-02 AI 분석
 **Response 200: 일반**
@@ -670,7 +672,7 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
   "disclaimer": "실제 신청 자격과 이용 가능 여부는 해당 기관에 확인이 필요합니다.",
   "results": [
     { "resourceId": 1001, "kind": "PROGRAM", "name": "발달장애인 긴급돌봄", "summary": "보호자 입원 등으로 일시적 돌봄이 필요할 때 이용하는 제도", "reasonText": "단기 돌봄과 관련된 제도예요.", "officialUrl": "https://..." },
-    { "resourceId": 2034, "kind": "FACILITY", "name": "○○ 단기거주시설", "district": "SUJI", "phone": "031-000-0000", "reasonText": "수지구에 있는 단기거주시설이에요.", "officialUrl": "https://..." }
+    { "resourceId": 1102, "kind": "PROGRAM", "name": "발달장애인 가족휴식지원", "summary": "발달장애인 가족의 휴식과 여가활동을 지원하는 제도", "reasonText": "단기 돌봄과 관련된 제도예요.", "officialUrl": "https://..." }
   ]
 }
 ```
@@ -679,6 +681,8 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 - 제도는 care_term과 target_conditions(나이 등)로, 시설은 제도에 매핑된 시설 유형 + 같은 구 우선으로 고른다. 저장하지 않는다.
 - `reasonText`는 MVP에서 템플릿 문장이다(AI-04는 P1).
 - 시설이 0건이면 `results`에 제도(PROGRAM)만 담는다. 제도도 없으면 빈 배열(에러 아님).
+- `careTerm=SHORT`는 단기 이용이 확인된 시설만 시설로 내려준다. 지금은 단기 시설이 없어서 위 예시처럼 제도만 나온다(#83).
+- `careTerm`을 생략하면 지원제도 5개를 모두 내려주고 제도의 `reasonText`는 "돌봄과 관련된 지원제도예요."이다.
 
 에러: `RESOURCE_INVALID_CONDITION` 400
 
@@ -699,6 +703,8 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
   "procedure": "...", "sourceDoc": "...", "docVersion": "2026"
 }
 ```
+- `docVersion`은 근거 문서의 발행 연도가 확실하지 않으면 `null`이다(#83).
+
 5.3에서 "돌봄 설명서 공유"를 누르면 SHARE-01을 `documentType=GUIDE`로 호출한다. 기관에 개인정보를 자동 전송하지 않는다.
 
 ### SUP-01 소진 지원 안내
@@ -706,8 +712,8 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
 {
   "message": ["요즘 기록에 지치신 날이 자주 보여요.", "보호자가 쉴 수 있도록 돕는 제도가 있어요."],
   "programs": [
-    { "resourceId": 1101, "name": "발달장애인 부모상담 지원", "programType": "PARENT_COUNSELING" },
-    { "resourceId": 1102, "name": "가족휴식지원", "programType": "FAMILY_REST" },
+    { "resourceId": 1101, "name": "발달장애인 부모상담지원", "programType": "PARENT_COUNSELING" },
+    { "resourceId": 1102, "name": "발달장애인 가족휴식지원", "programType": "FAMILY_REST" },
     { "resourceId": 1001, "name": "발달장애인 긴급돌봄", "programType": "EMERGENCY_CARE" }
   ]
 }
@@ -724,7 +730,7 @@ GET /subjects/10/resources/search?careTerm=SHORT&neededDate=2026-11-10&district=
     { "name": "119", "phone": "119", "note": "지금 누군가 다쳤거나 위험할 때" },
     { "name": "112", "phone": "112", "note": "지금 누군가 다쳤거나 위험할 때" }
   ],
-  "followUp": { "resourceId": 1101, "name": "발달장애인 부모상담 지원" }
+  "followUp": { "resourceId": 1101, "name": "발달장애인 부모상담지원" }
 }
 ```
 문구는 AI 명세 5-1과 같아야 한다. "전문기관 지원 확인"은 followUp으로 5.3에 간다.

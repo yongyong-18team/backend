@@ -439,9 +439,9 @@ MVP의 5.1→5.2는 저장 없이 조건(단기/장기, 날짜, 지역)으로 �
 | care_term | VARCHAR(10) | NOT NULL | SHORT / LONG / BOTH (5.1 단기·장기 분기) |
 | summary | TEXT | | |
 | eligibility_summary | TEXT | | 사람이 읽는 이용 조건 (5.3) |
-| target_conditions | JSONB | NOT NULL | 나이 범위 등 매칭 규칙 |
+| target_conditions | JSONB | NOT NULL | 나이 범위 등 매칭 규칙. 키는 `minAge`(이상), `maxAge`(미만)이고 둘 다 선택이다. 예: `{"minAge": 6, "maxAge": 65}`. 나이는 `올해 - birth_year`로 계산하고, 경계가 모호하면 제도에 포함한다 |
 | procedure | TEXT | | 신청 절차 |
-| source_doc / doc_version | VARCHAR(200) / VARCHAR(20) | | 근거 지침·연도 |
+| source_doc / doc_version | VARCHAR(200) / VARCHAR(20) | | 근거 지침·연도. 발행 연도가 확실하지 않으면 `doc_version`은 NULL |
 
 **program_facility_type**
 
