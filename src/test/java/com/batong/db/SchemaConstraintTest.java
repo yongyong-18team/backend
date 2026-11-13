@@ -149,8 +149,8 @@ class SchemaConstraintTest {
 
         jdbc.update("DELETE FROM users WHERE user_id = ?", ownerId);
 
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM care_subject", Long.class)).isZero();
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM diary", Long.class)).isZero();
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM invitation", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM care_subject WHERE owner_user_id = ?", Long.class, ownerId)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM diary WHERE subject_id = ?", Long.class, subjectId)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM invitation WHERE subject_id = ?", Long.class, subjectId)).isZero();
     }
 }
