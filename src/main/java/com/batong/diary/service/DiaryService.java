@@ -11,6 +11,7 @@ import com.batong.diary.dto.DiaryDtos.DiarySummary;
 import com.batong.diary.repository.DiaryRepository;
 import com.batong.global.auth.SubjectRole;
 import com.batong.global.auth.SubjectRoleResolver;
+import com.batong.global.config.JacksonConfig;
 import com.batong.global.enums.AnalysisStatus;
 import com.batong.global.enums.ItemCategory;
 import com.batong.global.enums.ItemStatus;
@@ -42,6 +43,10 @@ public class DiaryService {
     @Transactional
     public DiaryCreateResponse create(Long subjectId, Long userId, DiaryCreateRequest request) {
         roleResolver.require(subjectId, userId, SubjectRole.OWNER);
+        // API 명세 DIARY-01: 오늘(Asia/Seoul)보다 미래 날짜는 저장하지 않는다(기획 결정 #99)
+        if (request.diaryDate() != null && request.diaryDate().isAfter(LocalDate.now(JacksonConfig.KST))) {
+            throw new BusinessException(ErrorCode.COMMON_VALIDATION);
+        }
         Diary diary = diaryRepository.save(
                 Diary.create(subjectId, request.diaryDate(), request.content(), request.inputType()));
         return new DiaryCreateResponse(diary.getId(), diary.getAnalysisStatus());
