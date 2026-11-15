@@ -381,5 +381,4 @@ B2G·B2B 기반 돌봄 관리 플랫폼 구독 모델입니다. 보호자는 기
 | [ERD](docs/ERD_v1.4.md) | 테이블 명세, 삭제 정책, 정규화 점검 |
 | [API 명세](docs/API_명세_v1.4.md) | 엔드포인트, 요청·응답, 에러 코드 |
 | [AI 명세](docs/AI_명세_v1.4.md) | 프롬프트, 출력 스키마, 마스킹, 위기 사전, 평가셋 |
-| [DEPLOY](DEPLOY.md) | 서버 구성, 배포, 장애 대응 |
 | [CONTRIBUTING](CONTRIBUTING.md) | 협업 규칙 |
