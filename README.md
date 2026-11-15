@@ -21,9 +21,8 @@
 | 서비스 화면 (모바일 웹) | https://yongyong-18team-frontend.vercel.app |
 | API 서버 / Swagger UI | https://batong-team18.duckdns.org/swagger-ui/index.html |
 | 프론트엔드 레포 | https://github.com/yongyong-18team/frontend |
-| 발표 자료 (IR Deck, PDF 15쪽) | [docs/assets/batong_ir_deck.pdf](docs/assets/batong_ir_deck.pdf) |
 
-<a href="docs/assets/batong_ir_deck.pdf"><img src="docs/assets/ir_cover.jpg" alt="돌봄바통 IR Deck 표지" width="720"></a>
+<img src="docs/assets/ir_cover.jpg" alt="돌봄바통 발표 자료 표지" width="720">
 
 **육룡이 나르샤팀** · PM [xofkd009](https://github.com/xofkd009) · FE [Sehoon-Jeong](https://github.com/Sehoon-Jeong), [imly-dia](https://github.com/imly-dia) · BE [parkc31](https://github.com/parkc31), [wonnbu](https://github.com/wonnbu), [Hyunsuk305](https://github.com/Hyunsuk305)
 
@@ -62,6 +61,8 @@
 | 돌봄서비스 이용 시 대상자의 특성이나 주의사항을 전달하기 어려웠나요? | **80.0%** 자주 있었다 |
 | 돌보는 방법이나 주의사항 중 보호자님만 자세히 알고 있는 정보가 있나요? | **62.2%** 많이 있었다 |
 
+<img src="docs/assets/deck_survey.jpg" alt="보호자 설문 결과 슬라이드" width="720">
+
 돌봄바통은 이 정보를 **기록 → 정리 → 공유**하는 흐름을 만들어, 돌봄을 이어달리기의 바통처럼 다음 사람에게 안전하게 넘겨주는 것을 목표로 합니다.
 
 ## 핵심 흐름
@@ -83,6 +84,8 @@ flowchart LR
 ## 주요 기능
 
 서비스는 세 가지 기능으로 이루어집니다.
+
+<img src="docs/assets/deck_features.jpg" alt="핵심 기능 슬라이드" width="720">
 
 1. **기록과 AI 분석**: 매일의 돌봄을 음성이나 텍스트로 기록하면 AI가 행동 특성, 발생 상황, 대처 방법을 뽑아냅니다. 보호자가 승인한 항목만 돌봄 설명서에 쌓이고, 위기 표현이 감지되면 긴급 안전 안내로 바뀝니다.
 2. **기록 공유**: 보호자가 공유할 정보와 공개 범위를 직접 골라 기간 제한 링크를 만듭니다. 받는 사람은 앱 설치나 로그인 없이 링크로 엽니다.
@@ -106,6 +109,8 @@ flowchart LR
 ## 용인시 공공데이터 활용
 
 돌봄 탐색 기능은 용인시 공공데이터를 정리해 만든 돌봄 자원 DB를 씁니다. 공공데이터를 그대로 나열하지 않고, 서로 다른 자료를 맞춰 보며 서비스에 쓸 수 있는 형태로 가공했습니다.
+
+<img src="docs/assets/deck_publicdata.jpg" alt="공공데이터 활용 구조 슬라이드" width="720">
 
 | 수집 | 정제·검증 | 돌봄 자원 DB | 확장 범위 |
 |:---:|:---:|:---:|:---:|
@@ -203,6 +208,8 @@ sequenceDiagram
 ---
 
 ## 아키텍처
+
+<img src="docs/assets/deck_architecture.jpg" alt="아키텍처 슬라이드" width="720">
 
 ```mermaid
 flowchart LR
