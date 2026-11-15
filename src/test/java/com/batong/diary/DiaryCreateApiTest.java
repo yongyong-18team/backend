@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** DIARY-01: 저장 내용·상태, 빈 본문, 저장할 수 없는 문자, 필수 값, 역할(TRD 7-2: OWNER만) */
+/** DIARY-01: 저장 내용·상태, 미래 날짜, 빈 본문, 저장할 수 없는 문자, 필수 값, 역할(TRD 7-2: OWNER만) */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
@@ -110,13 +111,30 @@ class DiaryCreateApiTest {
     }
 
     @Test
-    void 같은_날짜에_여러_개_저장할_수_있고_미래_날짜도_막지_않는다() throws Exception {
-        String tomorrow = "\"" + LocalDate.now().plusDays(1) + "\"";
+    void 같은_날짜에_여러_개_저장할_수_있다() throws Exception {
         create(owner, body("\"2026-11-03\"", "\"첫 번째\"", "\"TEXT\"")).andExpect(status().isCreated());
         create(owner, body("\"2026-11-03\"", "\"두 번째\"", "\"TEXT\"")).andExpect(status().isCreated());
-        create(owner, body(tomorrow, "\"내일\"", "\"TEXT\"")).andExpect(status().isCreated());
 
-        assertThat(diaryCount()).isEqualTo(3);
+        assertThat(diaryCount()).isEqualTo(2);
+    }
+
+    @Test
+    void 미래_날짜는_COMMON_VALIDATION이고_저장하지_않는다() throws Exception {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        for (LocalDate future : new LocalDate[]{today.plusDays(1), LocalDate.of(2027, 1, 1)}) {
+            create(owner, body("\"" + future + "\"", "\"미래\"", "\"TEXT\""))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error.code").value("COMMON_VALIDATION"));
+        }
+        assertThat(diaryCount()).isZero();
+    }
+
+    @Test
+    void 오늘_날짜는_저장된다() throws Exception {
+        String today = "\"" + LocalDate.now(ZoneId.of("Asia/Seoul")) + "\"";
+        create(owner, body(today, "\"오늘\"", "\"TEXT\"")).andExpect(status().isCreated());
+
+        assertThat(diaryCount()).isEqualTo(1);
     }
 
     @Test
